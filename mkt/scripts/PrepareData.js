@@ -5,173 +5,100 @@ var this_month_flight_list;
 var daily_plan_data;
 var removed_ids_data;
 
-var currentMonth;
-var currentDate;
+var currentDate; //dd-mm-yyyy
+var currentMonth; //mm
+var currentYear;
+var currentQuarter; //2023-Q1, 2023-Q2
+var nextDate; //dd-mm-yyyy
 
-var nextDate;
+var download_time;
 
-var download_time_ab;
-
-var total_quota;
+var total_quota = 17000;
 var total_completed;
 var total_completed_percent;
 
 var total_quota_completed;
-var report_version = 1;
-var show_hide_closed_target = "No"
+var total_hard_quota;
+
+var less_than_2_flights_list;
+var less_than_6_flights_list;
+/************************************/
 /************************************/
 function initCurrentTimeVars() {
-  var d = new Date();
-      
-  var month = '' + (d.getMonth() + 1); //month start from 0;
-  
-  var day = '' + d.getDate();
-  var year = d.getFullYear();
+  var today = new Date();
 
-  if (month.length < 2) 
-      month = '0' + month;
-  if (day.length < 2) 
-      day = '0' + day;
+  var day = '' + today.getDate();
+  var month = '' + (today.getMonth() + 1); //month start from 0;
+  var year = today.getFullYear();
 
-  currentMonth =[month,year].join('-')
-  currentDate = [day, month,year].join('-');
-  
-  //next day
+  if (month.length < 2) month = '0' + month;
+  if (day.length < 2) day = '0' + day;
+
+  currentDate = [day, month, year].join('-');
+  currentYear = year;
+  currentMonth = month; //[month, year].join('-');;
+  currentQuarter = getQuarterFromMonth(currentMonth, currentYear);
+
+  //////////
   var tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate()+1);
+  tomorrow.setDate(today.getDate()+1);
   var tomorrowMonth = '' + (tomorrow.getMonth() + 1); //month start from 0;
   var tomorrowDay = '' + tomorrow.getDate();
   var tomorrowYear = tomorrow.getFullYear();
 
-  if (tomorrowMonth.length < 2) 
-  tomorrowMonth = '0' + tomorrowMonth;
-  if (tomorrowDay.length < 2) 
-  tomorrowDay = '0' + tomorrowDay;
-  nextDate  = [tomorrowDay, tomorrowMonth, tomorrowYear].join('-');
+  if (tomorrowMonth.length < 2) tomorrowMonth = '0' + tomorrowMonth;
+  if (tomorrowDay.length < 2) tomorrowDay = '0' + tomorrowDay;
 
-  //return [day, month,year].join('-');
+  nextDate  = [tomorrowDay, tomorrowMonth, tomorrowYear].join('-');
+  //////////
   if (document.getElementById('year_month') && document.getElementById('year_month').value.length > 0)
   {
-    if (document.getElementById('year_month').value != "current-month")
+    if (document.getElementById('year_month').value != "current-quarter")
     {
-      currentMonth = document.getElementById('year_month').value;
+      currentQuarter = document.getElementById('year_month').value;
     }
   }
+ 
+  switch(currentQuarter) {
+    case "2026-Q1":      
+        total_quota = 1000;
+        break;    
 
-  // //return [day, month,year].join('-');
-  // if (document.getElementById('show_hide_closed_target') && document.getElementById('show_hide_closed_target').value.length > 0)
-  // {
-  //   {
-  //     show_hide_closed_target = document.getElementById('show_hide_closed_target').value;
-  //   }
-  // }
-
-  console.log("currentMonth: ", currentMonth);
-  switch(currentMonth) {
-    case "01-2023":
-    case "02-2023":
-    case "03-2023":                  
-    case "04-2023":
-    case "05-2023":
-    case "06-2023":
-    case "07-2023":
-      report_version = 1;
-      total_quota = 750;
-      total_arrival_quota = 250;
-      break;
-    case "08-2023":
-    case "09-2023":      
-    case "10-2023":          
-    case "11-2023":          
-    case "12-2023":      
-      report_version = 2;        
-      total_quota = 1125;
-      total_arrival_quota = 375;
-      break;
-
-    case "11-2024":          
-        report_version = 2;        
+    case "2026-Q2": 
         total_quota = 1500;
-        total_arrival_quota = 500;
-      break;      
-    case "12-2024":      
-    case "01-2025":      
-    case "02-2025":      
-    case "03-2025":                  
-    case "04-2025":    
-    report_version = 2;        
-    total_quota = 1125;
-    total_arrival_quota = 375;
-    break;  
-    
-    case "05-2025":                  
-    case "06-2025":                  
-    case "07-2025":                  
-    case "08-2025":                                      
-    case "09-2025":                                      
-    case "10-2025":                                      
-    case "11-2025":                                      
-    case "12-2025":                                                      
-      report_version = 2;        
-      total_quota = 1100;
-      total_arrival_quota = 450;
-      break;      
-    
-    case "01-2026":                                                      
-    case "02-2026":                                                      
-    case "03-2026":   
-      report_version = 2;        
-      total_quota = 1100;
-      total_arrival_quota = 400;
-      break;                                                         
-    case "04-2026":                                                      
-    case "05-2026":                                                      
-    case "06-2026":      
-      report_version = 2;        
-      total_quota = 805;
-      total_arrival_quota = 350;
-      break;   
+        break;         
+    case "2026-Q3":       
+        total_quota = 2000;
+        break;      
 
-    case "07-2026":     
-      report_version = 2;        
-      total_quota = 1100;
-      total_arrival_quota = 400;
-      break;   
-
-    case "08-2026":                                                      
-    case "09-2026":                                                          
-    case "10-2026":  
-    case "11-2026":  
-    case "12-2026":              
-      report_version = 2;        
-      total_quota = 900;
-      total_arrival_quota = 300;
-      break;   
+    case "2026-Q4":
+        total_quota = 1500;
+        break;   
 
     default:
-      report_version = 2;        
-      total_quota = 900;
-      total_arrival_quota = 300;
+      total_quota = 1000;
       break;
   }
 }
 
-function isCurrentMonth(interviewEndDate)
+function getQuarterFromMonth(month, year)
 {
-// Input: "2023-04-03 10:06:22 GMT"
-  var interviewDateParsed = interviewEndDate.split("-")
-
-  var interviewYear = (interviewDateParsed[0]);
-  var interviewMonth =(interviewDateParsed[1]);
+  //Input: mm, yyyy
+  var quarter = 0;
   
-  var result = false;
-
-  if ( currentMonth ==[interviewMonth,interviewYear].join('-'))
-  {
-    result = true;
+  if ((month == '01') || (month == '02') || (month == '03')) {
+    quarter = "Q1";  
   }
-
-   return result;
+  else if ((month == '04') || (month == '05') || (month == '06')) {
+    quarter = "Q2";  
+  }
+  else if ((month == '07') || (month == '08') || (month == '09')) {
+    quarter = "Q3";  
+  }
+  else if ((month == '10') || (month == '11') || (month == '12')) {
+    quarter = "Q4";  
+  }
+  return (year + "-" + quarter);
 }
 
 function notDeparted(flight_time) {
@@ -184,7 +111,6 @@ function notDeparted(flight_time) {
   var flight_time_value = flight_time.substring(0,2) * 60 + flight_time.substring(2,4)*1;
 
   var result = (flight_time_value > current_time_value);
-
   return (result);
 }
 
@@ -203,66 +129,47 @@ function isvalid_id(id)
   return valid;
 }
 function prepareInterviewData() {
-  var quota_data_temp = JSON.parse(Destination_Quota);
+  var quota_data_temp = JSON.parse(mkt_airline_dest_quota);
   removed_ids_data = JSON.parse(removed_ids);
 
-  var interview_data_temp  = JSON.parse(interview_statistics);
-  var flight_list_temp  = JSON.parse(MUC_Departures_Flight_List_Raw);
-  var gate_info  = JSON.parse(MUC_Gate_Info);
+  var interview_data_temp  = JSON.parse(destAirlines_statistics);
+  var flight_list_temp  = JSON.parse(Departures_Flight_List_Raw);
 
   initCurrentTimeVars();	
-
+  
   //get quota data
   quota_data = [];
   quota_data.length = 0;
   for (i = 0; i < quota_data_temp.length; i++) {
-    var quota_month =  quota_data_temp[i].Month + "-"  + quota_data_temp[i].Year; 
-    if ((quota_month== currentMonth) && (quota_data_temp[i].Quota>0))
+    if (quota_data_temp[i].Quarter == currentQuarter)
     {
-      if (currentMonth == "04-2026") 
-        {
-          var ME_list = ['EY', 'QR', 'EK', 'GF', 'G9', 'B4'];
-          if (!ME_list.includes(quota_data_temp[i].quota_id.slice(-2))) {
-             quota_data_temp[i].Quota =  Math.round(quota_data_temp[i].Quota*(1+0.0624));      
-          }
-        }
- 
       quota_data.push(quota_data_temp[i]);
     }
   }
-
+  
   //get relevant interview data
   //empty the list
   interview_data = [];
   interview_data.length = 0;
 
-  download_time_ab = interview_data_temp[0].download_time;
-
+  download_time = interview_data_temp[0].download_time;
   for (i = 0; i < interview_data_temp.length; i++) {
     var interview = interview_data_temp[i];
-
     //only get complete interview & not test
-    if ( // (interview.InterviewState == "Complete") && 
-      (isCurrentMonth(interview.Interview_Date))
-      )
-    {
-      if (interview["Dest"]) {
-        if (report_version == 2) {
-          interview.quota_id = interview["Dest"] + " - "  +  interview["AirlineCode"];
-        }
-        else {
-          interview.quota_id = interview["Dest"];
-        }
-        
-        interview.InterviewEndDate = interview["InterviewEndDate"];
-        interview_data.push(interview);
+    var interview_year = interview["InterviewDate"].substring(0,4);
+    var interview_month = interview["InterviewDate"].substring(5,7);//"2023-04-03 06:18:18"
+    var interview_quarter = getQuarterFromMonth(interview_month, interview_year);
 
-      }
-      else{
-        console.log("ignored interview: ", interview);
-      }
+    if ((currentQuarter == interview_quarter))
+    {
+      var Airline_Dest = '"Airline_Dest"' + ":" + '"' +  interview["quota_id"] + '", ';
+      var InterviewEndDate = '"InterviewEndDate"' + ":" + '"' +  interview["InterviewDate"]+ '", ' ;
+      var Completed_of_interviews = '"Completed_of_interviews"' + ":" + '"' +  interview["Number of interviews"] ;
+      var str = '{' + Airline_Dest + InterviewEndDate + Completed_of_interviews + '"}';
+
+      interview_data.push(JSON.parse(str));
     }
-  }
+   }
 
   //prepare flight list
   //empty the list
@@ -274,29 +181,34 @@ function prepareInterviewData() {
   
   for (i = 0; i < flight_list_temp.length; i++) {
     let flight = flight_list_temp[i];
+
+    flight.Airline_Dest = flight.AirlineCode + "-" + flight.Dest; // flight.Flight.substring(0,2);//code for compare
+	  flight.Dest = flight.Dest + "-" + flight.DestName;//code for compare
+    flight.Next = flight.Next + "-" + flight.NextName;//code for compare
+
+    //for sorting: YYYY-MM-DD
+    flight.DateTimeID = flight.Date.substring(6,10) +  flight.Date.substring(3,5) +  flight.Date.substring(0,2) + flight.Time;
+    flight.Date_Time = flight.Date.substring(6,10) + "-" +  flight.Date.substring(3,5) + "-" + flight.Date.substring(0,2) + " " + flight.Time;
+
     //currentMonth: 02-2023
     //flight.Date: 08-02-2023
-    if (report_version == 2) {
-      flight.quota_id = flight.Dest + " - " +  flight.AirlineCode ;    }
-    else {
-      flight.quota_id = flight.Dest;
-    }
-
-    if (currentMonth == flight.Date.substring(3,10)) { 
+    if (currentQuarter ==  getQuarterFromMonth(flight.Date.substring(3,5), flight.Date.substring(6,10))) { 
       this_month_flight_list.push(flight);
     }	
-
+    
     //only get today & not departed flight
     if (((currentDate == flight.Date) && notDeparted(flight.Time))
-        || (nextDate == flight.Date)
-        )
+        || (nextDate == flight.Date))
     { 
-      flight.Date_Time = flight.Date.substring(6,10) + flight.Date.substring(3,5) + flight.Date.substring(0,2) + flight.Time;
-      //flight.Date_Time = flight.Time;
+      // flight.nextDay = 0; //display two date infor as requested by Didi
+      // if (nextDate == flight.Date) {
+      //   flight.nextDay = 1;
+      // }
       today_flight_list.push(flight);
     }
 			   
   }
+  
     //add quota data
     //empty the list
   daily_plan_data = [];
@@ -304,28 +216,14 @@ function prepareInterviewData() {
   
   for (i = 0; i < today_flight_list.length; i++) {
     let flight = today_flight_list[i];
-
-    //get gate info
-    for (j = 0; j < gate_info.length; j++) {
-      let gate = gate_info[j];
-      if ((gate.Flight == flight.Flight) && (gate.Date == flight.Date))
-      {
-        flight.GateArea = gate.GateArea;
-        flight.Gate = gate.Gate;
-        break;
-      }
-    }
-
     for (j = 0; j < quota_data.length; j++) {
       let quota = quota_data[j];
-      if ((quota.quota_id == flight.quota_id) && (quota.Quota>0))
+      if ((quota.Airline_Dest == flight.Airline_Dest) && (quota.Quota>0))
       {
         flight.Quota = quota.Quota;
         daily_plan_data.push(flight);
-        break;
        }
     }
-  
   }
-  // console.log("daily_plan_data:", daily_plan_data)
+  console.log("currentQuarter: ", currentQuarter);
 }

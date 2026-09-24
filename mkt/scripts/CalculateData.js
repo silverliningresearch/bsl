@@ -10,32 +10,32 @@ function CalculateAirportAirLineReport() {
   total_completed = 0;
   total_quota_completed = 0;
 
+
   //check what not belong to quota data
   var found_temp = 0;
   var not_in_quota_list =[];
   for (i = 0; i < interview_data.length; i++) 
   {
-    total_completed =  total_completed + interview_data[i]["completed_interviews"];;
+    total_completed = total_completed +   parseInt(interview_data[i].Completed_of_interviews);
     found_temp = 0;
     for (j = 0; j < quota_data.length; j++) 
     {
-      if (quota_data[j].quota_id.toUpperCase() == interview_data[i].quota_id.toUpperCase()) 
+      if (quota_data[j].Airline_Dest.toUpperCase() == interview_data[i].Airline_Dest.toUpperCase()) 
       { 
         found_temp = 1;
       }
     }
     if (found_temp==0) not_in_quota_list.push(interview_data[i]);
-  }    
+  }
   console.log("not_in_quota_list: ", not_in_quota_list);
-  total_completed_percent = (100*(total_completed/total_quota)).toFixed(0);   
-  
+
   for (i = 0; i < quota_data.length; i++) {
     row = quota_data[i];
     row.Completed = 0;
     for (j = 0; j < interview_data.length; j++) {
-      if (row.quota_id.toUpperCase() == interview_data[j].quota_id.toUpperCase()) 
+      if (row.Airline_Dest.toUpperCase() == interview_data[j].Airline_Dest.toUpperCase()) 
       { 
-        row.Completed = row.Completed + interview_data[j]["completed_interviews"];
+        row.Completed = row.Completed  + parseInt(interview_data[j].Completed_of_interviews);
       }
     }
 
@@ -44,7 +44,7 @@ function CalculateAirportAirLineReport() {
     row.Prioritisation_score = row.Difference_percent*row.Difference/100;
 
     row.Completed_percent =(100*(row.Completed/row.Quota)).toFixed(0);
-            
+        
     if ( row.Difference > 0) { //over quota
       total_quota_completed = total_quota_completed +row.Quota*1;
     }
@@ -56,24 +56,14 @@ function CalculateAirportAirLineReport() {
 
   }
 
-  // console.log("daily_plan_data: ", daily_plan_data);
-  // console.log("quota_data: ", quota_data);
-
-  for (i = 0; i < daily_plan_data.length; i++) {//Flight_To_report.length;
+  for (i = 0; i < daily_plan_data.length; i++) {//Airline_Dest_report.length;
     row = daily_plan_data[i];
     for (j = 0; j < quota_data.length; j++) {
-      if (row.quota_id.toUpperCase() == quota_data[j].quota_id.toUpperCase()) 
+      if (row.Airline_Dest.toUpperCase() == quota_data[j].Airline_Dest.toUpperCase()) 
       {
-        if (quota_data[j].Difference <= 0) 
-        {
-          row.Quota_Completed = "Yes";
-        }
+        if ( quota_data[j].Difference < 0) {
+          row.ACI_Quota = quota_data[j].ACI_Quota;
 
-        if (quota_data[j].Difference < 0) 
-        {
-          row.Quota_Completed = "No";
-        }
-        {
           row.doop = quota_data[j].doop;
           row.remaining_flights = quota_data[j].remaining_flights;
           row.Completed = quota_data[j].Completed;
@@ -87,8 +77,7 @@ function CalculateAirportAirLineReport() {
     }  
   }
 
-
-
+  total_completed_percent = (100*(total_completed/total_quota)).toFixed(0);   
   daily_plan_data = [];
   daily_plan_data.length = 0;
 
@@ -97,38 +86,13 @@ function CalculateAirportAirLineReport() {
     return parseFloat(b.Prioritisation_score) - parseFloat(a.Prioritisation_score);
   });
 
-  //special for MUC
-  // var focus_airlines = ["DE", "EK", "EW", "XQ", "TK", "4Y", "BA"]; //X3: TUI fly
-
-  // from Apr-2026, remove the highlight of the six T1 airlines as dark red. That is not needed anymore since we don’t have the targets in the IDR either. 
-  var focus_airlines = ["99999"];
-  
-  // focus US & CA
-  // var focus_dest = ["ATL",  "BOS",  "CLT",  "DEN",  "DTW", "EWR",   "IAD",
-  // "IAH",   "JFK",   "LAS",   "LAX",   "MIA",   "ORD",   "PHL",   "SFO",   "YHZ",   "YUL",  "YVR",  "YYZ"]; //X3: TUI fly
-  // var focus_dest = ["ATL",  "BOS",  "CLT",  "DEN",  "DTW", "EWR",   "IAD",
-  // "IAH",   "JFK",   "LAS",   "LAX",   "MIA",   "ORD",   "PHL",   "SFO"]; //X3: TUI fly
-  
-    // from Aug-2026, remove the highlight for all USA flights.
-    var focus_dest = ["99999"]; //X3: TUI fly
-
   for (i = 0; i < daily_plan_data_temp.length; i++) {
     row = daily_plan_data_temp[i];
     row.Priority = 0;
     daily_plan_data.push(row);
-    if((i< daily_plan_data_temp.length*0.25 ) || (row.remaining_flights<=5))
+    if((i< daily_plan_data_temp.length*0.25 ) || (row.remaining_flights<4))
     {
       row.Priority = 1;
-    }
-    if (focus_airlines.includes(daily_plan_data_temp[i].AirlineCode)) 
-    {
-      //console.log("daily_plan_data_temp[i].AirlineCode", daily_plan_data_temp[i].AirlineCode);
-      row.Priority = 2;
-    }
-    if (focus_dest.includes(daily_plan_data_temp[i].Dest)) 
-    {
-      //console.log("daily_plan_data_temp[i].AirlineCode", daily_plan_data_temp[i].AirlineCode);
-      row.Priority = 2;
     }
   }
 }
@@ -157,14 +121,14 @@ function isNotThePastDate(date) //"07-02-2023"
   var flight_day = parseInt(parts[0]);
   var Month = parseInt(parts[1]);
   
-  var result = (((flight_day >= current_day_of_month) && (Month==current_month)) || (Month>current_month));
+  var result = ((flight_day >= current_day_of_month) || (Month>current_month));
   //console.log("flight_day", date);
   //console.log("current_day_of_month", current_day_of_month);
   return (result);
 }
 
 function CalculateDOOP() {
-for (i = 0; i < quota_data.length; i++) {
+  for (var i = 0; i < quota_data.length; i++) {
     quota_data[i].doop = " ";
     quota_data[i].remaining_flights = 0;
     var mon =0;
@@ -176,8 +140,8 @@ for (i = 0; i < quota_data.length; i++) {
     var sun =0;
 
     var remaining_flights = 0;
-    for (j = 0; j < this_month_flight_list.length; j++) {
-      if (quota_data[i].quota_id.toUpperCase() == this_month_flight_list[j].quota_id.toUpperCase()) 
+    for (var j = 0; j < this_month_flight_list.length; j++) {
+      if (quota_data[i].Airline_Dest.toUpperCase() == this_month_flight_list[j].Airline_Dest.toUpperCase()) 
       {
         //get remaining_flights
         if (isNotThePastDate(this_month_flight_list[j].Date)) {
@@ -214,4 +178,39 @@ for (i = 0; i < quota_data.length; i++) {
     quota_data[i].doop =[mon, tue, wed, thu, fri, sat, sun].join('');
     quota_data[i].remaining_flights = remaining_flights;
   }
-}									 
+}
+
+function CalculateLessFlights() {
+  //Special for BRU
+  less_than_2_flights_list = [];
+  less_than_2_flights_list.length = 0;
+  less_than_6_flights_list = [];
+  less_than_6_flights_list.length = 0;
+ 
+  for (var i = 0; i < quota_data.length; i++) {
+    var quota = quota_data[i];
+    if (quota.remaining_flights<6) {
+
+      for (var j = 0; j < this_month_flight_list.length; j++) {
+        if (quota.Airline_Dest.toUpperCase() == this_month_flight_list[j].Airline_Dest.toUpperCase()) 
+        {
+          if (quota.Difference < 0) {
+            row = this_month_flight_list[j];
+            row.remaining_flights  = quota.remaining_flights;
+            row.Quota = quota.Quota;
+            row.Completed = quota.Completed;
+            row.Difference = quota.Difference;
+            row.Completed_percent = quota.Completed_percent;
+
+            less_than_6_flights_list.push(row);
+
+            if (quota.remaining_flights<2) {
+              less_than_2_flights_list.push(row);
+            }
+          }
+        }
+      }
+    }
+  }
+  //console.log("less_than_2_flights_list: ", less_than_2_flights_list);
+}
