@@ -38,10 +38,9 @@
                 document.getElementById("selectedAddress").innerHTML = "Your selection: Country = " + country + "; Postal Code = " + postal_code + " " + locality + " " + city;
                 var address = document.getElementById("selectedAddress").innerHTML;
 
-                if (current_map_question == "Q27") {
-                  api.fn.answers({urlVar20:  address});
-                  api.fn.answers({q27_Goolge_Maps: postal_code + " - " + locality + ", " + city + ", " + country});
-                  api.fn.answers({q27_search_list:  ""});
+                if (current_map_question == "Q422") {
+                  api.fn.answers({Q422_address:  address});
+                  api.fn.answers({Q422_postalcode: postal_code + " - " + locality + ", " + city + ", " + country});
                 } 
                 else if (current_map_question == "Q29") 
                 {
