@@ -6,6 +6,7 @@
 
 <style>
   
+  
   /* h1 {text-align: center;}
   h2 {text-align: center;}
  */
@@ -32,18 +33,32 @@
 </head>
 <body>
 
+  <div id="selectedAddress"></div>
+  <input
+    id="pac-input"
+    class="controls"
+    type="text"
+    placeholder="Search Box"
+  />
+  <div id="map">
+    <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDyvj3Xxekjs1ZGpv5mtwkblHhmjdPd2SA&callback=initAutocomplete&libraries=places&v=weekly"
+      defer> 
+    </script>
+  </div>
+
   <script>
     function start_new_interview() {
       console.log("start_new_interview");
       window.localStorage.clear();
 
-      let url = "https://silverliningresearch.github.io/BSL/mkt/survey.html";
+      let url = "https://silverliningresearch.github.io/bsl/mkt/survey.html";
       window.location.href = url;
     }
 
     function resume_curent_interview() {
       console.log("resume_curent_interview");
-      let url = "https://silverliningresearch.github.io/BSL/mkt/survey.html";
+      let url = "https://silverliningresearch.github.io/bsl/mkt/survey.html";
       window.location.href = url;
     }
 
@@ -70,7 +85,7 @@
   </h2>
   <h3>
 
-    <a href="https://silverliningresearch.github.io/BSL/mkt/DailyPlan.html" target="_blank">
+    <a href="https://silverliningresearch.github.io/bsl/mkt/DailyPlan.html" target="_blank">
       Daily Plan - Marketing Survey
     </a>
   </h3>
