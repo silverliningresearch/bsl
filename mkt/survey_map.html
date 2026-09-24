@@ -48,9 +48,9 @@
     <script src="data/Departures_flight_list.js"></script>
 
     <script src="scripts/flight_search.js"></script>
-    <script src="scripts/maps_search.js"></script>
     <script src="scripts/airport_search.js"></script>
     <script src="scripts/auto_complete_ui.js"></script>
+    <script src="scripts/maps_search.js"></script>
 
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/smoothness/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
@@ -62,15 +62,15 @@
           const listSearchHandler = () => {
             console.log("Current Page Index: ", api.fn.getCurrentPageIndex() );
 
-            switch(api.fn.getCurrentPageIndex()) {
-              case 1:
-                //show_flight_search_box("Flight_Number");
-              break;
+            // switch(api.fn.getCurrentPageIndex()) {
+            //   case 1:
+            //     //show_flight_search_box("Flight_Number");
+            //   break;
 
-              default:
-                hide_flight_search_box();
-              break;
-            }
+            //   default:
+            //     hide_flight_search_box();
+            //   break;
+            // }
 
 
             switch(api.fn.getCurrentPageIndex()) {
