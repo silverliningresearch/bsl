@@ -19,6 +19,8 @@
   </head>
 
   <body>
+
+
     <survalyzer-survey
       surveyhash="rxewbtdvgw"
       tenant="silverlining"
@@ -56,18 +58,8 @@
                 hide_flight_search_box();
               break;
             }
-          }    
 
-            switch(api.fn.getCurrentPageIndex()) {
-              case 1:
-                showGoogleMaps("Q422");
-              break;
-
-              default:
-                  hideGoogleMaps();
-              break;
-            }
-
+          }
           api.events.subscribe('next', listSearchHandler);
           api.events.subscribe('back', listSearchHandler);
           api.events.subscribe('startedOrContinued', listSearchHandler);
