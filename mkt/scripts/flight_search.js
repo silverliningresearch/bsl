@@ -1,8 +1,7 @@
-var flightRawList;
-var flightList = [];
-var flightShortList = [];
-var flightForInterview;
+var currentFlightList = [];
+var flightList;
 /************************************/
+
 function getToDate() {
   var d = new Date();
       
@@ -33,46 +32,36 @@ function getTomorrow() {
   return [day, month, year].join('-');
 }
 
-function flight_in_list_found(list, item) {
+function getToDate() {
+  var d = new Date();
+      
+  month = '' + (d.getMonth() + 1),
+  day = '' + d.getDate(),
+  year = d.getFullYear();
+
+  if (month.length < 2) 
+      month = '0' + month;
+  if (day.length < 2) 
+      day = '0' + day;
+
+  return [day, month,year].join('-');
+}
+
+function find_flight(list, item) {
   item = item.toLowerCase();
   
   if (item) {
     if (item !== "") {
       for (i = 0; i < list.length; i++) {
         if (list[i].Show.toLowerCase() === item) {
+          $('.rt-btn.rt-btn-next').show(); 
           return true;
         }
       }
     }
   }
+  $('.rt-btn.rt-btn-next').hide(); 
   return false;
-}
-
-function notDeparted_flight_search(flight_date, flight_time) {
-  var current_time = new Date().toLocaleString('en-US', { timeZone: 'Europe/Berlin', hour12: false});
-  //15:13:27
-  var current_time_value  = current_time.substring(current_time.length-8,current_time.length-6) * 60;
-  current_time_value += current_time.substring(current_time.length-5,current_time.length-3)*1;
-
-  //Time: 0805    
-  var flight_time_value = flight_time.substring(0,2) * 60 + flight_time.substring(2,4)*1;
-  
-  var result = false;
-  
-  //allow departure time range compare to the current time: -0.5h + 4h
-  
-  //if next date, plus 24 hour
-  if (flight_date == getTomorrow()) 
-  {  
-    flight_time_value = flight_time_value + 24*60;
-  }
-
-  if ((current_time_value < (flight_time_value + 60)) && (current_time_value > (flight_time_value - 240))) //within[-1h +4h]
-  {
-      result = true; 
-  }
-
-  return (result);
 }
 
 function load_flight_list() {
@@ -122,33 +111,125 @@ function load_flight_list() {
     }
   }
 
-  aui_init_search_list(flightList);
   console.log("Load flight list done!");
 }
 
-function save_flight_value(question, value) {
-  console.log("question:", question);
-  console.log("value:", value);
 
-  api.fn.answers({flight_show:  value.Show});
-  api.fn.answers({flight_number:   value.Flight});
+function notDeparted_flight_search(flight_time) {
+  var current_time = new Date().toLocaleString('de-DE', { timeZone: 'Europe/Berlin', hour12: false});
+  //15:13:27
+  var current_time_value  = current_time.substring(current_time.length-8,current_time.length-6) * 60;
+  current_time_value += current_time.substring(current_time.length-5,current_time.length-3)*1;
 
-  api.fn.answers({airport_code:   value.Dest});
-  api.fn.answers({airport_name: value.DestName});
-  api.fn.answers({airline_code:   value.AirlineCode}); //airline code
-  api.fn.answers({airline_name:   value.Airline});  //airline name
-
-  console.log("save flight  done!");
-}
-
-function show_flight_search_box(question) {
-  load_flight_list();
+  //Time: 0805    
+  var flight_time_value = flight_time.substring(0,2) * 60 + flight_time.substring(2,4)*1;
   
-  var defaultValue = "";
+  //plus  4 hour
+  flight_time_value = flight_time_value + 240;
 
-  aui_show_external_search_box(question, defaultValue);
+  var result = (flight_time_value > current_time_value);
+  return (result);
 }
 
-function hide_flight_search_box() {
-  aui_hide_external_search_box();
+function search_flight() {
+  var input = document.getElementById('inputFlightCodeID').value;
+  var searchList = document.getElementById('flightSearchList');
+  
+  searchList.innerHTML = '';
+  currentFlightList = [];
+  currentFlightList.length = 0;
+  input = input.toLowerCase();
+
+  var today = getToDate();
+  var count = 0;
+  for (i = 0; i < flightList.length; i++) {
+    let flight = flightList[i];
+
+    if ((today == flight.Date) 
+        && notDeparted_flight_search(flight.Time)) //today flight && departure{ 
+    {      
+      if (flight.Show.toLowerCase().includes(input)) {
+        const elem = document.createElement("option");
+        elem.value = flight.Show;
+        searchList.appendChild(elem);
+        currentFlightList.push(flight);
+        count++;
+      }
+    }
+    
+    if (count > 30) {
+      break;
+    }
+  }
+
+  if (find_flight(flightList, document.getElementById('inputFlightCodeID').value)) {
+    console.log("Found ", document.getElementById('inputFlightCodeID').value);
+  }
+  else{
+    console.log("Not found ", document.getElementById('inputFlightCodeID').value);
+  }  
+  
+  console.log("earch_flight done!");
+}
+
+function select_flight() {
+  var selectedFlight = document.getElementById('inputFlightCodeID').value;
+  var flightDestinationValue;
+  var found = false;
+ //$('.rt-btn.rt-btn-next').hide(); 
+
+  for (i = 0; i < currentFlightList.length; i++) {
+    var currentFlight = currentFlightList[i];
+    if (currentFlight.Show == selectedFlight) { 
+      flightDestinationValue = currentFlight.DestName + " (" + currentFlight.Dest  + ")";
+
+      api.fn.answers({flight_show:  currentFlight.Show});
+      api.fn.answers({flight_number:   currentFlight.Flight});
+
+      api.fn.answers({airport_code:   currentFlight.Dest});
+      api.fn.answers({airport_name: flightDestinationValue});
+      api.fn.answers({airline_code:   currentFlight.AirlineCode}); //airline code
+      api.fn.answers({airline_name:   currentFlight.Airline});  //airline name
+
+
+
+      if (currentFlight.Schengen) api.fn.answers({Schengen_flight:  currentFlight.Schengen});
+      
+      found = true;
+      $('.rt-btn.rt-btn-next').show(); 
+      break;
+    }
+  }
+  if (!found) {
+    alert("Please select a flight number from the list.");
+  }
+}
+
+function showFlightCodeSection() {
+  load_flight_list();
+
+  $('.rt-element.rt-text-container').append(`<input list="flightSearchList" onchange="select_flight()"  onkeyup="search_flight()" name="inputFlightCodeID" id="inputFlightCodeID" >
+  <datalist id="flightSearchList"> </datalist>`);
+
+  var currentValue  = api.fn.answers().Core_Q3_ext;
+  if (currentValue) {
+    if (currentValue !== "") {
+      document.getElementById('inputFlightCodeID').value = currentValue;
+    }
+  }
+
+  if (find_flight(flightList, document.getElementById('inputFlightCodeID').value)) {
+    console.log("Found ", document.getElementById('inputFlightCodeID').value);
+  }
+  else{
+    console.log("not found ", document.getElementById('inputFlightCodeID').value);
+  }
+  $('#inputFlightCodeID').show(); 
+}
+
+
+function hideFlightCodeSection() {
+  $('#inputFlightCodeID').hide();
+  //var x = document.getElementById('inputFlightCodeID');
+  //x.style.display = "none";
 }
