@@ -38,14 +38,12 @@
                 document.getElementById("selectedAddress").innerHTML = "Your selection: Country = " + country + "; Postal Code = " + postal_code + " " + locality + " " + city;
                 var address = document.getElementById("selectedAddress").innerHTML;
 
-                if (current_map_question == "Q422") {
-                  api.fn.answers({Q422_address:  address});
-                  api.fn.answers({Q422_postalcode: postal_code + " - " + locality + ", " + city + ", " + country});
+                if (current_map_question == "Q242") {
+                  api.fn.answers({Q242_postalcode: postal_code + " - " + locality + ", " + city + ", " + country});
                 } 
-                else if (current_map_question == "Q29") 
+                else if (current_map_question == "Q244") 
                 {
-                  api.fn.answers({q29_address: address});
-                  api.fn.answers({q29_postalcode: postal_code + " - " + locality + ", " + city + ", " + country});
+                  api.fn.answers({Q244_postalcode: postal_code + " - " + locality + ", " + city + ", " + country});
                 }
             }
 
@@ -117,7 +115,7 @@
   }
 
   function initAutocomplete() {
-    const myLatlng = { lat: 52.3733, lng: 13.5064};
+    const myLatlng = { lat: 47.5896, lng: 7.5299};
 
     //const map = new google.maps.Map(document.getElementById("map"), {
     map = new google.maps.Map(document.getElementById("map"), {      
@@ -130,7 +128,7 @@
   const input = document.getElementById("pac-input");
   const searchBox = new google.maps.places.SearchBox(input);
 
-  map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(input);
   // Bias the SearchBox results towards current map's viewport.
   map.addListener("bounds_changed", () => {
     searchBox.setBounds(map.getBounds());
