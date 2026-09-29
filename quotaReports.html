@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BSL Quota Report Links</title>
+  <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+<style>
+  
+  /* h1 {text-align: center;}
+
+ */
+  h2 {text-align: center;}
+.button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  width: 300px;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.red {background-color: #f44336;;} /* Red */
+.blue {background-color: #008CBA;;} /* Blue */ 
+
+</style>
+
+</head>
+<body>
+  <h2>BSL - Links list</h2>
+  <div style="background-color: lightblue;">
+  </br>
+  </div>
+
+  <h3>
+    </br>
+      <a href="https://silverliningresearch.github.io/bsl/mkt/QuotaReport" class="pass-param">
+        01. Marketing Survey - Quota Report
+      </a> </br> </br>
+
+      <a href="https://silverliningresearch.github.io/bsl/asqd/QuotaReport" class="pass-param">
+        02. ASQ Departure Survey - Quota Report
+      </a> </br> </br>
+
+      <a href="https://silverliningresearch.github.io/bsl/asqc/QuotaReport" class="pass-param">
+        03. ASQ Commercial Survey - Quota Report
+      </a> </br> </br>
+  </h3>
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          
+          // --- Helper: Display current parameter on the page for testing ---
+          const paramName = 'token'; // The parameter we are looking for
+          const currentParams = new URLSearchParams(window.location.search);
+          const currentParamValue = currentParams.get(paramName);
+          const statusBox = document.getElementById('status-box');
+          
+          // --- Core Logic: Pass parameter on click ---
+          const links = document.querySelectorAll('.pass-param');
+
+          links.forEach(link => {
+              link.addEventListener('click', function(event) {
+                  event.preventDefault(); // Stop normal click behavior
+                  
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const paramValue = urlParams.get(paramName);
+                  
+                  // Build destination URL
+                  const destinationUrl = new URL(this.href);
+                  
+                  if (paramValue) {
+                      // Append the parameter to the clicked link's destination
+                      destinationUrl.searchParams.set(paramName, paramValue);
+                  } else {
+                      alert("Note: No parameter found in current URL, opening standard link.");
+                  }
+                  
+                  // Navigate to the new URL
+                  if (this.target === '_blank') {
+                      window.open(destinationUrl.toString(), '_blank'); // Opens in new tab
+                  } else {
+                      window.location.href = destinationUrl.toString(); // Opens in same tab
+                  }
+              });
+          });
+
+      });
+  </script>
+</body>
+</html>
+
+
