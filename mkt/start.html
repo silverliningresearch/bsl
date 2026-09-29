@@ -34,19 +34,30 @@
 <body>
 
 
-  <script>
-    function start_new_interview() {
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  function start_new_interview() {
       console.log("start_new_interview");
       window.localStorage.clear();
 
-      let url = "https://silverliningresearch.github.io/bsl/mkt/survey.html";
-      window.location.href = url;
+      const destination = new URL("https://silverliningresearch.github.io/bsl/mkt/survey.html");
+
+      if (token) {
+        destination.searchParams.set('token', token);
+      }
+      window.location.href = destination.toString();
     }
 
     function resume_curent_interview() {
       console.log("resume_curent_interview");
-      let url = "https://silverliningresearch.github.io/bsl/mkt/survey.html";
-      window.location.href = url;
+      const destination = new URL("https://silverliningresearch.github.io/bsl/mkt/survey.html");
+
+      if (token) {
+        destination.searchParams.set('token', token);
+      }
+      window.location.href = destination.toString();
     }
 
 </script>
@@ -66,16 +77,7 @@
   <div style="background-color: lightblue;">
   </br>
   </div> 
-  
-  <h2>
-    Interviewer Information
-  </h2>
-  <h3>
-
-    <a href="https://silverliningresearch.github.io/bsl/mkt/DailyPlan.html" target="_blank">
-      Daily Plan - Marketing Survey
-    </a>
-  </h3>
+ 
 
 </body>
 </html>
