@@ -123,7 +123,7 @@ function prepareInterviewData_asq() {
   for (i = 0; i < dest_airline_quota_asq_temp.length; i++) {
     if (dest_airline_quota_asq_temp[i].Quarter == currentQuarter)
     {
-      if (dest_airline_quota_asq_temp[i].Quota >=1) //BSL: >=2, not >=4 
+      if (dest_airline_quota_asq_temp[i].Quota >=1) //BSL: >=1, not >=4 
       {
         dest_airline_quota_asq.push(dest_airline_quota_asq_temp[i]);
       }
