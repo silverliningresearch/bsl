@@ -74,9 +74,7 @@ function load_flight_list() {
 
   for (i = 0; i < flightRawList.length; i++) {
     var flight = flightRawList[i];
-    if (
-        ((flight.Date == getToDate() || (flight.Date == getTomorrow())) //today flight
-          && notDeparted_flight_search(flight.Date, flight.Time)   // not departured
+    if ((flight.Date == getToDate()) && (notDeparted_flight_search(flight.Time)   // not departured
         )
         )
     {
