@@ -45,7 +45,7 @@
   <script type="text/javascript">
     // Configuration for fallback system
     const CONFIG_URL = 'https://raw.githubusercontent.com/silverliningresearch/aptgateway/main/config.json?t=' + new Date().getTime();
-    let prj ="BSL_ASQD";
+    let prj ="BSL_ASQA";
     
     // Global variables to store config and data sources
     let gatewayConfig = null;
@@ -234,16 +234,16 @@
 				data.addColumn('number', 'Completion Rate %');
 
         //add data
-        for (i = 0; i < dest_airline_quota_asq.length; i++) {
-          var row = dest_airline_quota_asq[i];
+        for (i = 0; i < time_of_day_origin_quota_asq.length; i++) {
+          var row = time_of_day_origin_quota_asq[i];
 
-          var parts =  row.Airline_Dest.split("-");
+          var parts =  row.Time_of_Day_Origin.split("-");
           var Airline = parts[0];
           var Dest = parts[1];
 
           data.addRows([
           [
-            row.Airline_Dest,
+            row.Time_of_Day_Origin,
             Airline,
             Dest,            
             Number(row.remaining_flights),

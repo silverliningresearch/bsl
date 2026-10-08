@@ -1,9 +1,9 @@
 <html>
     <head>
-		<title>Daily plan - BSL ASQ Departure Survey</title>
+		<title>Daily plan - BSL ASQ Arrivals Survey</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.svg">
   
-    <script src="../mkt/data/Departures_flight_list.js"></script>
+    <script src="../mkt/data/Arrivals_flight_list.js"></script>
   
     <style>
       .table-font {
@@ -22,7 +22,7 @@
   <script type="text/javascript">
     // Configuration for fallback system
     const CONFIG_URL = 'https://raw.githubusercontent.com/silverliningresearch/aptgateway/main/config.json?t=' + new Date().getTime();
-    let prj ="BSL_ASQD";
+    let prj ="BSL_ASQA";
     
     // Global variables to store config and data sources
     let gatewayConfig = null;
@@ -105,24 +105,18 @@
       if (requiresToken && userToken) {
         // Primary server with token
         interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js?token=${userToken}`;
-        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js?token=${userToken}`;
-        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js?token=${userToken}`;
-        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js?token=${userToken}`;
+        quotaTimeOriginUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Time_Origin.js?token=${userToken}`;
       } else {
         // Fallback GitHub repository without token
         interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js`;
-        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js`;
-        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js`;
-        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js`;
+        quotaTimeOriginUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Time_Origin.js`;
       }
 
       // Load remote data scripts via fetch+eval to bypass MIME type restriction
       try {
         console.log('Loading script:', interviewStatsUrl);
         await fetchAndEval(interviewStatsUrl);
-        await fetchAndEval(quotaAirlineDestUrl);
-        await fetchAndEval(quotaAirlineUrl);
-        await fetchAndEval(quotaDestUrl);
+        await fetchAndEval(quotaTimeOriginUrl);
 
         console.log('Remote data scripts loaded successfully');
 
@@ -339,7 +333,7 @@
     </script>
   </head>
   <body>
-		<h1>Daily plan - BSL ASQ Departure Survey</h1>
+		<h1>Daily plan - BSL ASQ Arrivals Survey</h1>
     <h5 id="download_time_asq"></h5>
     <h4 id="overall_status"></h4>
     

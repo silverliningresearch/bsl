@@ -18,9 +18,9 @@ function CalculateAirportAirLineReport_asq() {
   {
     total_completed_asq = total_completed_asq +   parseInt(interview_data_asq[i].Completed_of_interviews);
     found_temp = 0;
-    for (j = 0; j < dest_airline_quota_asq.length; j++) 
+    for (j = 0; j < time_of_day_origin_quota_asq.length; j++) 
     {
-      if (dest_airline_quota_asq[j].Airline_Dest.toUpperCase() == interview_data_asq[i].Airline_Dest.toUpperCase()) 
+      if (time_of_day_origin_quota_asq[j].Time_of_Day_Origin.toUpperCase() == interview_data_asq[i].Time_of_Day_Origin.toUpperCase()) 
       { 
         found_temp = 1;
       }
@@ -30,17 +30,17 @@ function CalculateAirportAirLineReport_asq() {
   console.log("ASQ - not_in_quota_list: ", not_in_quota_list);
 
   //Dest_Airline related
-  for (i = 0; i < dest_airline_quota_asq.length; i++) {
+  for (i = 0; i < time_of_day_origin_quota_asq.length; i++) {
     //debug only
-    if (dest_airline_quota_asq[i].Airline_Dest == "IB-MAD")
+    if (time_of_day_origin_quota_asq[i].Time_of_Day_Origin == "IB-MAD")
     {
       //console.log("daily_plan_data_asq[i]: ", airline_quota_asq[i]); 
     }
 
-    row = dest_airline_quota_asq[i];
+    row = time_of_day_origin_quota_asq[i];
     row.Completed = 0;
     for (j = 0; j < interview_data_asq.length; j++) {
-      if (row.Airline_Dest.toUpperCase() == interview_data_asq[j].Airline_Dest.toUpperCase()) 
+      if (row.Time_of_Day_Origin.toUpperCase() == interview_data_asq[j].Time_of_Day_Origin.toUpperCase()) 
       { 
         row.Completed = row.Completed  + parseInt(interview_data_asq[j].Completed_of_interviews);
       }
@@ -95,18 +95,18 @@ function CalculateAirportAirLineReport_asq() {
     row = daily_plan_data_asq[i];
 
     //Dest airline 
-    for (j = 0; j < dest_airline_quota_asq.length; j++) {
-      if (row.Airline_Dest.toUpperCase() == dest_airline_quota_asq[j].Airline_Dest.toUpperCase()) 
+    for (j = 0; j < time_of_day_origin_quota_asq.length; j++) {
+      if (row.Time_of_Day_Origin.toUpperCase() == time_of_day_origin_quota_asq[j].Time_of_Day_Origin.toUpperCase()) 
       {
-        //if ( dest_airline_quota_asq[j].Difference < 0) 
+        //if ( time_of_day_origin_quota_asq[j].Difference < 0) 
         {
-          row.doop = dest_airline_quota_asq[j].doop;
-          row.remaining_flights = dest_airline_quota_asq[j].remaining_flights;
-          row.Completed = dest_airline_quota_asq[j].Completed;
-          row.Difference = dest_airline_quota_asq[j].Difference;
-          row.Difference_percent = dest_airline_quota_asq[j].Difference_percent;
-          row.Completed_percent = dest_airline_quota_asq[j].Completed_percent;
-          row.Prioritisation_score = dest_airline_quota_asq[j].Prioritisation_score;
+          row.doop = time_of_day_origin_quota_asq[j].doop;
+          row.remaining_flights = time_of_day_origin_quota_asq[j].remaining_flights;
+          row.Completed = time_of_day_origin_quota_asq[j].Completed;
+          row.Difference = time_of_day_origin_quota_asq[j].Difference;
+          row.Difference_percent = time_of_day_origin_quota_asq[j].Difference_percent;
+          row.Completed_percent = time_of_day_origin_quota_asq[j].Completed_percent;
+          row.Prioritisation_score = time_of_day_origin_quota_asq[j].Prioritisation_score;
         }
       }
     }  
@@ -339,9 +339,9 @@ function is_the_last_month_of_Quarter_asq() //"07-02-2023"
   return (result);
 }
 function CalculateDOOP_asq() {
-  for (var i = 0; i < dest_airline_quota_asq.length; i++) {
-    dest_airline_quota_asq[i].doop = " ";
-    dest_airline_quota_asq[i].remaining_flights = 0;
+  for (var i = 0; i < time_of_day_origin_quota_asq.length; i++) {
+    time_of_day_origin_quota_asq[i].doop = " ";
+    time_of_day_origin_quota_asq[i].remaining_flights = 0;
     var mon =0;
     var tue =0;
     var wed =0;
@@ -352,7 +352,7 @@ function CalculateDOOP_asq() {
 
     var remaining_flights = 0;
     for (var j = 0; j < this_month_flight_list_asq.length; j++) {
-      if (dest_airline_quota_asq[i].Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+      if (time_of_day_origin_quota_asq[i].Time_of_Day_Origin.toUpperCase() == this_month_flight_list_asq[j].Time_of_Day_Origin.toUpperCase()) 
       {
         //get remaining_flights
         if (isNotThePastDate_asq(this_month_flight_list_asq[j].Date)) {
@@ -386,8 +386,8 @@ function CalculateDOOP_asq() {
         }
       }
     }
-    dest_airline_quota_asq[i].doop =[mon, tue, wed, thu, fri, sat, sun].join('');
-    dest_airline_quota_asq[i].remaining_flights = remaining_flights;
+    time_of_day_origin_quota_asq[i].doop =[mon, tue, wed, thu, fri, sat, sun].join('');
+    time_of_day_origin_quota_asq[i].remaining_flights = remaining_flights;
   }
 }
 
@@ -398,12 +398,12 @@ function CalculateLessFlights_asq() {
   less_than_6_flights_list = [];
   less_than_6_flights_list.length = 0;
  
-  for (var i = 0; i < dest_airline_quota_asq.length; i++) {
-    var quota = dest_airline_quota_asq[i];
+  for (var i = 0; i < time_of_day_origin_quota_asq.length; i++) {
+    var quota = time_of_day_origin_quota_asq[i];
     if (quota.remaining_flights<6) {
 
       for (var j = 0; j < this_month_flight_list_asq.length; j++) {
-        if (quota.Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+        if (quota.Time_of_Day_Origin.toUpperCase() == this_month_flight_list_asq[j].Time_of_Day_Origin.toUpperCase()) 
         {
           if (quota.Difference < 0) {
             row = this_month_flight_list_asq[j];

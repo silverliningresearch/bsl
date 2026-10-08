@@ -1,4 +1,4 @@
-var dest_airline_quota_asq;
+var time_of_day_origin_quota_asq;
 var airline_quota_asq;
 var dest_quota_asq;
 
@@ -108,26 +108,26 @@ function notDeparted_asq(flight_time) {
 }
 
 function prepareInterviewData_asq() {
-  var dest_airline_quota_asq_temp = JSON.parse(AirlineDest_quota_ASQ);
+  var time_of_day_origin_quota_asq_temp = JSON.parse(Time_of_Day_Origin_quota_ASQ);
   // var airline_quota_asq_temp = JSON.parse(Airline_quota_ASQ);
   // var dest_quota_asq_temp = JSON.parse(Dest_quota_ASQ);
   var airline_quota_asq_temp = [];
   var dest_quota_asq_temp = [];
   
   var interview_data_asq_temp  = JSON.parse(interview_statistics_asq);
-  var flight_list_temp  = JSON.parse(Departures_Flight_List_Raw);
+  var flight_list_temp  = JSON.parse(Arrivals_Flight_List_Raw);
     
   initCurrentTimeVars_asq();	
   
   //get quota data
-  dest_airline_quota_asq = [];
-  dest_airline_quota_asq.length = 0;
-  for (i = 0; i < dest_airline_quota_asq_temp.length; i++) {
-    if (dest_airline_quota_asq_temp[i].Quarter == currentQuarter)
+  time_of_day_origin_quota_asq = [];
+  time_of_day_origin_quota_asq.length = 0;
+  for (i = 0; i < time_of_day_origin_quota_asq_temp.length; i++) {
+    if (time_of_day_origin_quota_asq_temp[i].Quarter == currentQuarter)
     {
-      if (dest_airline_quota_asq_temp[i].Quota >=1) //BSL: >=2, not >=4 
+      if (time_of_day_origin_quota_asq_temp[i].Quota >=1) //BSL: >=2, not >=4 
       {
-        dest_airline_quota_asq.push(dest_airline_quota_asq_temp[i]);
+        time_of_day_origin_quota_asq.push(time_of_day_origin_quota_asq_temp[i]);
       }
     }
   }
@@ -161,26 +161,18 @@ function prepareInterviewData_asq() {
     //only get complete interview & not test
     var interview_year = interview["InterviewDate"].substring(0,4);
     var interview_month = interview["InterviewDate"].substring(5,7);//"2023-04-03 06:18:18"
-    var parts = interview["quota_id"].split("-");
 
-    var Agent_Letters = parts[0];
-    var Agent_Destination = parts[1];
-    
-    //speciall mapping ICAO - IATA code
-    // if (Agent_Letters == "EZS") Agent_Letters = "DS";
-    // if (Agent_Letters == "EZY") Agent_Letters = "U2";
-    
     var interview_quarter = getQuarterFromMonth_asq(interview_month, interview_year);
 
     if ((currentQuarter == interview_quarter))
     {
-      var Airline_Dest = '"Airline_Dest"' + ":" + '"' + Agent_Letters + "-" + Agent_Destination + '", ';
-      var Airline = '"Airline"' + ":" + '"' +  Agent_Letters + '", ';
-      var Dest = '"Dest"' + ":" + '"' +  Agent_Destination + '", ';
-      var InterviewEndDate = '"InterviewEndDate"' + ":" + '"' +  interview["InterviewDate"]+ '", ' ;
-      var Completed_of_interviews = '"Completed_of_interviews"' + ":" + '"' +  interview["Number of interviews"] ;
-      var str = '{' + Airline_Dest + Airline + Dest + InterviewEndDate + Completed_of_interviews + '"}';
-      interview_data_asq.push(JSON.parse(str));
+      interview.InterviewEndDate = interview.InterviewDate;
+      interview.Dest = interview.quota_id.slice(-3);
+      interview.Time_of_Day_Origin = interview.quota_id;
+      interview.Completed_of_interviews = interview["Number of interviews"];
+
+ 
+      interview_data_asq.push(interview);
     }
   }
   
@@ -194,28 +186,6 @@ function prepareInterviewData_asq() {
   
   for (i = 0; i < flight_list_temp.length; i++) {
     let flight = flight_list_temp[i];
-
-    //speciall treatment for EJU and EZY: Airline code in fligth schedule using ICAO, but sampling using IATA 
-    var flight_letters = flight.Flight.substring(0,3);
-    var flight_number = flight.Flight.substring(3,8);
-    flight.Flight_Show = flight.Flight;
-
-    //speciall mapping ICAO - IATA code
-    if ((flight_letters == "EZS") || (flight_letters == "EZY") || (flight_letters == "EJU"))
-    {
-      var new_flight_letters = flight_letters;
-      // if (flight_letters == "EZY") new_flight_letters = "U2";
-      // if (flight_letters == "EZS") new_flight_letters = "DS";
-      if (flight_letters == "EJU") new_flight_letters = "EC";
-      
-      flight.Flight_Show = new_flight_letters + " " + flight_number;
-      flight.AirlineCode = new_flight_letters;
-      
-      flight.Flight_Show = flight.Flight_Show + " (" +  flight.Flight + ")";
-    }
-
-    // flight.Dest = flight.Airport_code; //speciall for BER
-    flight.Airline_Dest = flight.AirlineCode + "-" + flight.Dest;//code for compare
 
     //for sorting: YYYY-MM-DD
     flight.DateTimeID = flight.Date.substring(6,10) +  flight.Date.substring(3,5) +  flight.Date.substring(0,2) + flight.Time;
@@ -254,9 +224,9 @@ function prepareInterviewData_asq() {
   for (i = 0; i < today_flight_list_asq.length; i++) {
     let flight = today_flight_list_asq[i];
 
-    for (j = 0; j < dest_airline_quota_asq.length; j++) {
-      let quota = dest_airline_quota_asq[j];
-      if ((quota.Airline_Dest == flight.Airline_Dest) )
+    for (j = 0; j < time_of_day_origin_quota_asq.length; j++) {
+      let quota = time_of_day_origin_quota_asq[j];
+      if ((quota.Time_of_Day_Origin == flight.Time_of_Day_Origin) )
       {
         flight.Quota = quota.Quota;
        }
