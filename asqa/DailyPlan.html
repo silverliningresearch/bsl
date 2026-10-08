@@ -1,0 +1,365 @@
+<html>
+    <head>
+		<title>Daily plan - BSL ASQ Departure Survey</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.svg">
+  
+    <script src="../mkt/data/Departures_flight_list.js"></script>
+  
+    <style>
+      .table-font {
+        font-size: 16px;
+        /* height: 18px; */
+      }
+
+      .filter-font {
+        font-size: 16px;
+        /* height: 18px; */
+      }
+    </style>
+
+
+  <!-- >>>Datagateway -->
+  <script type="text/javascript">
+    // Configuration for fallback system
+    const CONFIG_URL = 'https://raw.githubusercontent.com/silverliningresearch/aptgateway/main/config.json?t=' + new Date().getTime();
+    let prj ="BSL_ASQD";
+    
+    // Global variables to store config and data sources
+    let gatewayConfig = null;
+    let dataSourceBase = '';
+    let requiresToken = false;
+    let userToken = '';
+    let chartsReady = false;
+    let dataReady = false;
+
+    // Parse token from URL query parameter
+    function getTokenFromURL() {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      return urlParams.get('token') || '';
+    }
+
+    // Get token on page load
+    userToken = getTokenFromURL();
+
+    if (userToken) {
+      console.log('Token found in URL');
+    } else {
+      console.log('No token in URL - will use fallback mode if token is required');
+    }
+
+    // Fetch configuration and load data scripts
+    async function loadConfiguration() {
+      try {
+        const response = await fetch(CONFIG_URL);
+        gatewayConfig = await response.json();
+
+        // Determine data source based on mode
+        if (gatewayConfig.mode === 'primary') {
+          dataSourceBase = gatewayConfig.primary.url;
+          requiresToken = gatewayConfig.primary.requiresToken;
+        } else if (gatewayConfig.mode === 'fallback') {
+          dataSourceBase = gatewayConfig.fallback.url;
+          requiresToken = gatewayConfig.fallback.requiresToken;
+        }
+
+        // If token is required but not provided - warn
+        if (requiresToken && !userToken) {
+          console.warn('Token required but not provided.');
+        }
+
+        // Display current mode for debugging
+        console.log(`Gateway Mode: ${gatewayConfig.mode}`);
+        console.log(`Data Source: ${dataSourceBase}`);
+        console.log(`Requires Token: ${requiresToken}`);
+
+      } catch (error) {
+        console.error('Error loading configuration:', error);
+        alert('Failed to load gateway configuration. Application cannot start.');
+        return; // Stop execution if config fails
+      }
+
+      // Load data scripts dynamically
+      try {
+        // Check for Mixed Content (HTTPS page loading HTTP content)
+        if (window.location.protocol === 'https:' && dataSourceBase.startsWith('http:')) {
+          const msg = 'Security Error: Cannot load insecure (HTTP) data from a secure (HTTPS) page. Please use HTTP or update the server to HTTPS.';
+          console.error(msg);
+          alert(msg);
+          return;
+        }
+
+        await loadDataScripts();
+      } catch (error) {
+        console.error('Error loading data scripts:', error);
+        alert(`Failed to load data scripts: ${error.message}\nPlease check your connection or token.`);
+      }
+    }
+
+    // Load data scripts based on configuration
+    async function loadDataScripts() {
+      // Build URLs with or without token
+      let interviewStatsUrl, flightListUrl, quotaAirlineDestUrl,  quotaAirlineUrl,  quotaDestUrl;
+      let quotaDataUrl, invalidCasesUrl;
+
+      if (requiresToken && userToken) {
+        // Primary server with token
+        interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js?token=${userToken}`;
+        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js?token=${userToken}`;
+        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js?token=${userToken}`;
+        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js?token=${userToken}`;
+      } else {
+        // Fallback GitHub repository without token
+        interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js`;
+        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js`;
+        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js`;
+        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js`;
+      }
+
+      // Load remote data scripts via fetch+eval to bypass MIME type restriction
+      try {
+        console.log('Loading script:', interviewStatsUrl);
+        await fetchAndEval(interviewStatsUrl);
+        await fetchAndEval(quotaAirlineDestUrl);
+        await fetchAndEval(quotaAirlineUrl);
+        await fetchAndEval(quotaDestUrl);
+
+        console.log('Remote data scripts loaded successfully');
+
+      } catch (error) {
+        console.error('Error loading remote data scripts:', error);
+        throw error;
+      }
+
+      // Load logic scripts after data scripts are loaded
+      try {
+        await loadScript('scripts/CalculateData_ASQ.js');
+        await loadScript('scripts/PrepareData_ASQ.js');
+        console.log('Logic scripts loaded successfully');
+      } catch (error) {
+        console.error('Error loading logic scripts:', error);
+        throw error;
+      }
+
+      // Signal that data is ready
+      dataReady = true;
+      console.log('Data ready');
+      attemptDraw();
+    }
+
+    // Fetch a JS file as text and eval it (bypasses MIME type restriction from raw.githubusercontent.com)
+    // Uses globalThis assignment to escape function scope (let/var inside a function eval are NOT global)
+    function fetchAndEval(url) {
+      return fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+          return response.text();
+        })
+        .then(code => {
+          // Replace first `let/const/var varName` declaration with `globalThis.varName`
+          // so the variable is accessible globally after eval
+          const globalCode = code.replace(/^\s*(let|const|var)\s+(\w+)/, 'globalThis.$2');
+          eval(globalCode);
+        });
+    }
+
+    // Helper function to load a script dynamically (for local scripts)
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+        document.head.appendChild(script);
+      });
+    }
+
+    function onChartsLoaded() {
+      console.log('Google Charts loaded');
+      chartsReady = true;
+      attemptDraw();
+    }
+
+    function attemptDraw() {
+      if (chartsReady && dataReady) {
+        console.log('Both Charts and Data ready. Drawing table...');
+        drawTable();
+      } else {
+        console.log(`Waiting... Charts: ${chartsReady}, Data: ${dataReady}`);
+      }
+    }
+
+    // Start loading configuration when the page loads
+    window.onload = loadConfiguration;
+  </script>
+  <!-- <<<Datagateway -->
+
+
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      function isNextDay()
+      {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+
+        //?nextday=true
+        return(urlParams.has('nextday'));
+      }
+      //google.charts.load('current', {'packages':['table']});
+      google.charts.load('current', {'packages':['table','corechart', 'controls']});
+      google.charts.setOnLoadCallback(onChartsLoaded);
+
+      function drawTable() {
+        CalculateAirportAirLineReport_asq();
+        var data = new google.visualization.DataTable();
+
+        //define header
+        data.addColumn('string', 'Date');
+        data.addColumn('string', 'Time');
+        data.addColumn('string', 'TER');
+        data.addColumn('string', 'Flight');
+        data.addColumn('string', 'To');
+        data.addColumn('number', 'Remaining Flights');
+        data.addColumn('number', 'Quota');
+        data.addColumn('number', 'Completed');
+				data.addColumn('number', 'Missing');
+        data.addColumn('number', 'Completed %');
+        //data.addColumn('string', 'Notes');
+        data.addColumn('number', 'Priority Score');
+        data.addColumn('number', 'Priority');
+
+        //sort ascending
+        daily_plan_data_asq.sort(function(a, b) {
+          return (parseFloat(a.Date_Time) - parseFloat(b.Date_Time));
+        });
+
+        //add data
+        for (i = 0; i < daily_plan_data_asq.length; i++) {
+          if (((daily_plan_data_asq[i].Difference < 0)  //airline-dest still missing data
+                ||(daily_plan_data_asq[i].Priority > 0)) // or either airline or dest still missing data
+              && (daily_plan_data_asq[i].Quota > 0) //place holder only
+             )
+          {
+            var row = daily_plan_data_asq[i];
+            data.addRows([[
+                row.DateID, 
+                row.Time, 
+                row.Terminal, 
+                row.Flight_Show, row.Dest, 
+                Number(row.remaining_flights), Number(row.Quota), Number(row.Completed), 
+                Number(row.Difference), 
+                Number(row.Completed_percent), 
+                //row.ASQ_missing,
+                Number(row.Prioritisation_score), 
+                Number(row.Priority)]]);
+          }
+        }	
+
+        //highlight priority one
+        var priority_col = data.getNumberOfColumns()-1; //last one
+        for (var i = 0; i < data.getNumberOfRows(); i++) {
+          for (j=0; j < data.getNumberOfColumns(); j++) {
+            // if (data.getValue(i, priority_col) ==1) 
+            // {
+            //   data.setProperty(i, j, 'style', 'background-color:#FFCCCB');
+            // }
+            // if (data.getValue(i, priority_col) ==2) 
+            // {
+            //   data.setProperty(i, j, 'style', 'background-color:#F67052');
+            // }
+            if (data.getValue(i, priority_col) ==4) 
+            {
+              data.setProperty(i, j, 'style', 'background-color:#FFD700');
+            }            
+          }
+        }
+
+        //create a dashboard.
+        var dashboard = new google.visualization.Dashboard(
+        document.getElementById('dashboard_div'));
+
+       //create fiter
+       var options_Terminal = {
+          'filterColumnLabel': 'TER',
+          "ui": {"label": "", 
+                "labelStacking": 'horizotal',
+                "caption": "Select Terminal",
+                }
+        };
+
+        var tableFilter_Terminal = new google.visualization.ControlWrapper({
+          'controlType': 'CategoryFilter',
+          'containerId': 'filter_terminal',
+          'options': options_Terminal
+        });
+
+        var options_date = {
+          'filterColumnLabel': 'Date',
+          "ui": {"label": "", 
+                "labelStacking": 'horizotal',
+                "caption": "Select Date",
+                }
+        };
+        
+        var tableFilter_date = new google.visualization.ControlWrapper({
+          'controlType': 'CategoryFilter',
+          'containerId': 'filter_date',
+          'options': options_date
+        });
+
+        // Create table
+        var tableChart = new google.visualization.ChartWrapper({
+          'chartType': 'Table',
+          'containerId': 'table_div',
+          'options': {
+            'allowHtml': true, 
+            'cssClassNames': {tableCell: 'table-font', headerRow: 'table-font', headerCell: 'googleHeaderCell' },
+            //'sortColumn': 0, //time
+            'showRowNumber': false, 'width': '100%', 'height': '100%'
+          }
+        });
+
+        dashboard.bind([tableFilter_Terminal, tableFilter_date], tableChart);
+
+        var view = new google.visualization.DataView(data);
+        view.hideColumns([priority_col, priority_col-1]); //unncessary columns: Date_Time & priority
+        //document.getElementById("filter_div").style.display = "none";
+        dashboard.draw(view);
+
+        //Update time info
+        document.getElementById("download_time_asq").innerHTML = "Data updated: " + download_time_asq;
+
+        //overall_status
+        var overall_status = "Total quota: " + total_quota_asq;
+        overall_status += " - Total completed: " + total_completed_asq;
+        overall_status += " - Quota completed: " + total_quota_completed_asq;
+        overall_status += " (" + total_completed_percent_asq + "%)";
+        document.getElementById("overall_status").innerHTML = overall_status;
+      }
+    </script>
+  </head>
+  <body>
+		<h1>Daily plan - BSL ASQ Departure Survey</h1>
+    <h5 id="download_time_asq"></h5>
+    <h4 id="overall_status"></h4>
+    
+
+    <div id="dashboard_div">
+      <!--Divs that will hold each control and chart-->
+      <div id="filter_terminal"></div>
+      <div id="filter_date"></div>
+
+      </br>
+
+      <div id="filter_div" style="font-size: 15px"> </div>
+      </br>
+      <div id="table_div"></div>
+    </div>
+
+      <!-- <div id="2017" style="z-index:1;position: fixed;top: 70px;left: 850px;font-family: Arial;font-size: 13;color:red;">2017</div> -->
+      </br>
+      <div id="table_div"></div>
+    </div>
+
+  </body>
+</html>
