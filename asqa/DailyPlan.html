@@ -210,9 +210,9 @@
         //define header
         data.addColumn('string', 'Date');
         data.addColumn('string', 'Time');
-        data.addColumn('string', 'TER');
+        data.addColumn('string', 'Time of Day-Origin');
         data.addColumn('string', 'Flight');
-        data.addColumn('string', 'To');
+        data.addColumn('string', 'From');
         data.addColumn('number', 'Remaining Flights');
         data.addColumn('number', 'Quota');
         data.addColumn('number', 'Completed');
@@ -238,8 +238,8 @@
             data.addRows([[
                 row.DateID, 
                 row.Time, 
-                row.Terminal, 
-                row.Flight_Show, row.Dest, 
+                row.Time_of_Day_Origin, 
+                row.Flight, row.Dest, 
                 Number(row.remaining_flights), Number(row.Quota), Number(row.Completed), 
                 Number(row.Difference), 
                 Number(row.Completed_percent), 
@@ -274,10 +274,10 @@
 
        //create fiter
        var options_Terminal = {
-          'filterColumnLabel': 'TER',
+          'filterColumnLabel': 'From',
           "ui": {"label": "", 
                 "labelStacking": 'horizotal',
-                "caption": "Select Terminal",
+                "caption": "Select Origin:",
                 }
         };
 
