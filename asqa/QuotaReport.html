@@ -1,9 +1,9 @@
 <html>
   <head>
-		<title>Quota Report - BSL ASQ Departure Survey</title>
+		<title>Quota Report - BSL ASQ Arrival Survey</title>
     <link rel="icon" type="image/x-icon" href="images/favicon.svg">
     
-    <script src="../mkt/data/Departures_flight_list.js"></script>
+    <script src="../mkt/data/Arrivals_flight_list.js"></script>
 
     <style>
       .table-font {
@@ -128,24 +128,18 @@
       if (requiresToken && userToken) {
         // Primary server with token
         interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js?token=${userToken}`;
-        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js?token=${userToken}`;
-        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js?token=${userToken}`;
-        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js?token=${userToken}`;
+        quotaTimeOriginUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Time_Origin.js?token=${userToken}`;
       } else {
         // Fallback GitHub repository without token
         interviewStatsUrl = `${dataSourceBase}/${prj}/interview_statistics_asq.js`;
-        quotaAirlineDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airline_Dest.js`;
-        quotaAirlineUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Airlines.js`;
-        quotaDestUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Dest.js`;
+        quotaTimeOriginUrl = `${dataSourceBase}/${prj}/ASQ_Quota_Time_Origin.js`;
       }
 
       // Load remote data scripts via fetch+eval to bypass MIME type restriction
       try {
         console.log('Loading script:', interviewStatsUrl);
         await fetchAndEval(interviewStatsUrl);
-        await fetchAndEval(quotaAirlineDestUrl);
-        await fetchAndEval(quotaAirlineUrl);
-        await fetchAndEval(quotaDestUrl);
+        await fetchAndEval(quotaTimeOriginUrl);
 
         console.log('Remote data scripts loaded successfully');
 
@@ -312,7 +306,7 @@
     </script>
   </head>
   <body>
-		<h1>Quota Report - BSL ASQ Departure Survey</h1>
+		<h1>Quota Report - BSL ASQ Arrivals Survey</h1>
     <h4 id="overall_status"></h4>
     <h4 id="download_time_asq"></h4>
 
@@ -322,8 +316,7 @@
         <option value="current-quarter">current quarter
         <option value="2026-Q4">2026-Q4                                                  
         <option value="2026-Q3">2026-Q3                                                  
-        <option value="2026-Q2">2026-Q2                                                  
-        <option value="2026-Q1">2026-Q1                                                  
+                                                
       </select>
     </div>
 

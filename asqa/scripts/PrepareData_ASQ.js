@@ -109,8 +109,10 @@ function notDeparted_asq(flight_time) {
 
 function prepareInterviewData_asq() {
   var dest_airline_quota_asq_temp = JSON.parse(AirlineDest_quota_ASQ);
-  var airline_quota_asq_temp = JSON.parse(Airline_quota_ASQ);
-  var dest_quota_asq_temp = JSON.parse(Dest_quota_ASQ);
+  // var airline_quota_asq_temp = JSON.parse(Airline_quota_ASQ);
+  // var dest_quota_asq_temp = JSON.parse(Dest_quota_ASQ);
+  var airline_quota_asq_temp = [];
+  var dest_quota_asq_temp = [];
   
   var interview_data_asq_temp  = JSON.parse(interview_statistics_asq);
   var flight_list_temp  = JSON.parse(Departures_Flight_List_Raw);
