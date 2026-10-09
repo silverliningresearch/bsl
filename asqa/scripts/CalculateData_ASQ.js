@@ -162,6 +162,8 @@ function CalculateAirportAirLineReport_asq() {
     if ((row.Quota>=4) && (row.Completed_percent<85))
     {
       row.dest_airline_still_missing = 1;
+      row.Priority = 1;
+
     }
   }
   var count  = 0;
@@ -173,7 +175,7 @@ function CalculateAirportAirLineReport_asq() {
     )
     {
       row = daily_plan_data_temp[i];
-      row.Priority = 0;
+      // row.Priority = 0;
       daily_plan_data_asq.push(row);
       if((count < daily_plan_data_temp.length*0.3)  //hightlight 30% of the total list
          || is_2nd_hafl_of_the_quarter_asq())       //hightlight all in the 2nd half of the quarter 
@@ -205,7 +207,7 @@ function CalculateAirportAirLineReport_asq() {
             }
             if ((found==0) && (row.Airline_Completed_percent<85)) {//airline
               count++; 
-              row.Priority = 3;
+              //row.Priority = 3;
               row.ASQ_missing = row.AirlineCode + " (missing " +  row.Airline_Difference + ")";            
             }
           } 
@@ -250,15 +252,7 @@ function CalculateAirportAirLineReport_asq() {
         }
       }
 
-      //specail for BER
-      var focus_dest = ["ADB", "AGP", "ATH", "AYT", "FAO", "FUE", "HER", "KRK", 
-                        "LPA", "SKG", "SKP", "TFS"];
 
-      if (focus_dest.includes(daily_plan_data_temp[i].Dest)) 
-      {
-        //console.log("daily_plan_data_temp[i].AirlineCode", daily_plan_data_temp[i].AirlineCode);
-        row.Priority = 4;
-      }
     }
   }
 }
