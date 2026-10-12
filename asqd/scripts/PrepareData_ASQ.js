@@ -12,8 +12,10 @@ var currentMonth; //mm
 var currentYear;
 var currentQuarter; //2023-Q1, 2023-Q2
 var nextDate; //dd-mm-yyyy
+var nextDateID; //yyyy-mm-dd 
 
 var currentDateID; //yyyy-mm-dd 
+
 var download_time_asq;
 
 var total_quota_asq = 17000;
@@ -52,6 +54,8 @@ function initCurrentTimeVars_asq() {
   if (tomorrowDay.length < 2) tomorrowDay = '0' + tomorrowDay;
 
   nextDate  = [tomorrowDay, tomorrowMonth, tomorrowYear].join('-');
+  nextDateID  = [tomorrowYear, tomorrowMonth, tomorrowDay].join('-');
+
   //////////
   if (document.getElementById('year_month') && document.getElementById('year_month').value.length > 0)
   {
@@ -234,7 +238,7 @@ function prepareInterviewData_asq() {
       
       //only get today & not departed flight
       if (((currentDateID == flight.DateID) && notDeparted_asq(flight.Time))
-          || (flight.DateID >= currentDateID)
+         || (nextDateID == flight.DateID)
         )
       { 
         flight.Date_Time = flight.Date.substring(6,10) + flight.Date.substring(3,5) + flight.Date.substring(0,2) + flight.Time;

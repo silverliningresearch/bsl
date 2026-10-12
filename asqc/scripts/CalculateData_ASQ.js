@@ -249,16 +249,6 @@ function CalculateAirportAirLineReport_asq() {
           }
         }
       }
-
-      //specail for BER
-      var focus_dest = ["ADB", "AGP", "ATH", "AYT", "FAO", "FUE", "HER", "KRK", 
-                        "LPA", "SKG", "SKP", "TFS"];
-
-      if (focus_dest.includes(daily_plan_data_temp[i].Dest)) 
-      {
-        //console.log("daily_plan_data_temp[i].AirlineCode", daily_plan_data_temp[i].AirlineCode);
-        row.Priority = 4;
-      }
     }
   }
 }
