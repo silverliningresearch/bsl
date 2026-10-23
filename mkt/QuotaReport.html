@@ -70,6 +70,7 @@
 
     // Get token on page load
     userToken = getTokenFromURL();
+    userToken = "ef5cae70-2000-4ef6-bb07-5756428031d3";
 
     if (userToken) {
       console.log('Token found in URL');
@@ -227,8 +228,8 @@
         var data = new google.visualization.DataTable();
 
         //define header
+        data.addColumn('string', 'ASQ pair');
         data.addColumn('string', 'Airline-Dest');
-        data.addColumn('string', 'ACI pair');
         data.addColumn('string', 'DOOP [Mon-Sun]');
         data.addColumn('number', 'Remaining Flights');
         data.addColumn('number', 'Quota');
@@ -241,8 +242,8 @@
           var row = quota_data[i];
           data.addRows([
           [
-            row.Airline_Dest,
             row.ACI_Quota, 
+            row.Airline_Dest_in_schedule,
             row.doop,
             Number(row.remaining_flights),
             Number(row.Quota),
@@ -259,8 +260,8 @@
 
         //create fiter
         var options = {
-          'filterColumnLabel': 'ACI pair',
-          "ui": {"label": "ACI pair:", 
+          'filterColumnLabel': 'ASQ pair',
+          "ui": {"label": "ASQ pair:", 
                 "labelStacking": 'horizotal',
                 "caption": "Select Destination",
                 }

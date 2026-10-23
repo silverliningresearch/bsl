@@ -59,7 +59,7 @@ function CalculateAirportAirLineReport() {
   for (i = 0; i < daily_plan_data.length; i++) {//Airline_Dest_report.length;
     row = daily_plan_data[i];
     for (j = 0; j < quota_data.length; j++) {
-      if (row.Airline_Dest.toUpperCase() == quota_data[j].Airline_Dest.toUpperCase()) 
+      if (quota_data[j].Airline_Dest_in_schedule.includes(row.Airline_Dest))
       {
         if ( quota_data[j].Difference < 0) {
           row.ACI_Quota = quota_data[j].ACI_Quota;
@@ -141,7 +141,7 @@ function CalculateDOOP() {
 
     var remaining_flights = 0;
     for (var j = 0; j < this_month_flight_list.length; j++) {
-      if (quota_data[i].Airline_Dest.toUpperCase() == this_month_flight_list[j].Airline_Dest.toUpperCase()) 
+      if (quota_data[i].Airline_Dest_in_schedule.includes(this_month_flight_list[j].Airline_Dest) && (quota_data[i].Quota>0))
       {
         //get remaining_flights
         if (isNotThePastDate(this_month_flight_list[j].Date)) {
@@ -192,7 +192,7 @@ function CalculateLessFlights() {
     if (quota.remaining_flights<6) {
 
       for (var j = 0; j < this_month_flight_list.length; j++) {
-        if (quota.Airline_Dest.toUpperCase() == this_month_flight_list[j].Airline_Dest.toUpperCase()) 
+       if (quota_data[i].Airline_Dest_in_schedule.includes(this_month_flight_list[j].Airline_Dest))
         {
           if (quota.Difference < 0) {
             row = this_month_flight_list[j];

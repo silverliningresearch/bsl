@@ -105,6 +105,9 @@ function load_flight_list() {
         item.ViaName = ViaName;
 
         flightList.push(item);
+
+        //console.log(Show);
+
       }
     }
   }

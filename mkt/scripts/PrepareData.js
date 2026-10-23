@@ -22,6 +22,96 @@ var total_hard_quota;
 
 var less_than_2_flights_list;
 var less_than_6_flights_list;
+
+const routes_mapping = [
+  { flight: "DS-ACE", aci: "U2-ACE" },
+  { flight: "DS-AGA", aci: "U2-AGA" },
+  { flight: "EC-AGP", aci: "U2-AGP" },
+  { flight: "DS-AJA", aci: "U2-AJA" },
+  { flight: "EC-ALC", aci: "U2-ALC" },
+  { flight: "DS-ATH", aci: "U2-ATH" },
+  { flight: "DS-AYT", aci: "U2-AYT" },
+  { flight: "EC-BCN", aci: "U2-BCN" },
+  { flight: "DS-BDS", aci: "U2-BDS" },
+  { flight: "EC-BER", aci: "U2-BER" },
+  { flight: "DS-BER", aci: "U2-BER" },
+  { flight: "EC-BIA", aci: "U2-BIA" },
+  { flight: "DS-BIA", aci: "U2-BIA" },
+  { flight: "DS-BIO", aci: "U2-BIO" },
+  { flight: "DS-BIQ", aci: "U2-BIQ" },
+  { flight: "DS-BOD", aci: "U2-BOD" },
+  { flight: "EC-BOD", aci: "U2-BOD" },
+  { flight: "DS-BRI", aci: "U2-BRI" },
+  { flight: "DS-BUD", aci: "U2-BUD" },
+  { flight: "DS-CAG", aci: "U2-CAG" },
+  { flight: "DS-CFU", aci: "U2-CFU" },
+  { flight: "EC-CHQ", aci: "U2-CHQ" },
+  { flight: "DS-CHQ", aci: "U2-CHQ" },
+  { flight: "DS-CPH", aci: "U2-CPH" },
+  { flight: "DS-CTA", aci: "U2-CTA" },
+  { flight: "DS-DJE", aci: "U2-DJE" },
+
+  { flight: "DS-EDI", aci: "U2-EDI" },
+  { flight: "U2-EDI", aci: "U2-EDI" },
+
+  { flight: "EC-FAO", aci: "U2-FAO" },
+  { flight: "DS-FAO", aci: "U2-FAO" },
+  { flight: "DS-FCO", aci: "U2-FCO" },
+  { flight: "EC-FCO", aci: "U2-FCO" },
+  { flight: "DS-FNC", aci: "U2-FNC" },
+  { flight: "DS-FUE", aci: "U2-FUE" },
+  { flight: "DS-HAM", aci: "U2-HAM" },
+  { flight: "DS-HER", aci: "U2-HER" },
+  { flight: "DS-HRG", aci: "U2-HRG" },
+  { flight: "EC-IBZ", aci: "U2-IBZ" },
+  { flight: "DS-KEF", aci: "U2-KEF" },
+  { flight: "DS-KGS", aci: "U2-KGS" },
+  { flight: "DS-KRK", aci: "U2-KRK" },
+  { flight: "DS-LCA", aci: "U2-LCA" },
+  { flight: "EC-LIS", aci: "U2-LIS" },
+  { flight: "DS-LIS", aci: "U2-LIS" },
+  { flight: "DS-LPA", aci: "U2-LPA" },
+  { flight: "EC-MAD", aci: "U2-MAD" },
+  { flight: "EC-MAH", aci: "U2-MAH" },
+  { flight: "DS-MAH", aci: "U2-MAH" },
+  { flight: "DS-MLA", aci: "U2-MLA" },
+  { flight: "DS-MPL", aci: "U2-MPL" },
+  { flight: "EC-NAP", aci: "U2-NAP" },
+  { flight: "DS-NBE", aci: "U2-NBE" },
+  { flight: "EC-NCE", aci: "U2-NCE" },
+  { flight: "DS-NCE", aci: "U2-NCE" },
+  { flight: "EC-NTE", aci: "U2-NTE" },
+  { flight: "DS-NTE", aci: "U2-NTE" },
+  { flight: "DS-OLB", aci: "U2-OLB" },
+  { flight: "EC-OPO", aci: "U2-OPO" },
+  { flight: "DS-OPO", aci: "U2-OPO" },
+  { flight: "EC-PMI", aci: "U2-PMI" },
+  { flight: "DS-PMO", aci: "U2-PMO" },
+  { flight: "EC-PRG", aci: "U2-PRG" },
+  { flight: "IV-PRN", aci: "GPX-PRN" },
+  { flight: "DS-PRN", aci: "U2-PRN" },
+  { flight: "DS-PUY", aci: "U2-PUY" },
+  { flight: "DS-RAK", aci: "U2-RAK" },
+  { flight: "DS-RHO", aci: "U2-RHO" },
+  { flight: "DS-RMI", aci: "U2-RMI" },
+  { flight: "EC-SCQ", aci: "U2-SCQ" },
+  { flight: "DS-SKG", aci: "U2-SKG" },
+  { flight: "DS-SPC", aci: "U2-SPC" },
+  { flight: "DS-SPU", aci: "U2-SPU" },
+  { flight: "EC-SPU", aci: "U2-SPU" },
+  { flight: "DS-SUF", aci: "U2-SUF" },
+  { flight: "EC-SVQ", aci: "U2-SVQ" },
+  { flight: "EC-TFS", aci: "U2-TFS" },
+  { flight: "DS-TLS", aci: "U2-TLS" },
+  { flight: "DS-TNG", aci: "U2-TNG" },
+  { flight: "DS-VCE", aci: "U2-VCE" },
+  { flight: "DS-VIE", aci: "U2-VIE" },
+  { flight: "DS-VLC", aci: "U2-VLC" }
+];
+
+// If applying to a single string value (like a survey variable):
+// const mappedValue = replacements.reduce((current, item) => current.replaceAll(item.flight, item.replace), airlineDestString);
+
 /************************************/
 /************************************/
 function initCurrentTimeVars() {
@@ -143,6 +233,16 @@ function prepareInterviewData() {
   for (i = 0; i < quota_data_temp.length; i++) {
     if (quota_data_temp[i].Quarter == currentQuarter)
     {
+      quota_data_temp[i]["Airline_Dest_in_schedule"] = "";
+
+      // Loop through the array and apply replaceAll for each pair
+      for (k = 0; k < routes_mapping.length; k++) {
+        if (routes_mapping[k].aci == quota_data_temp[i]["ACI_Quota"]) {
+          quota_data_temp[i]["Airline_Dest_in_schedule"] = quota_data_temp[i]["Airline_Dest_in_schedule"] + routes_mapping[k].flight + "; "; 
+        }
+      }
+
+      if (quota_data_temp[i]["Airline_Dest_in_schedule"] == "")  quota_data_temp[i]["Airline_Dest_in_schedule"] = quota_data_temp[i]["ACI_Quota"];
       quota_data.push(quota_data_temp[i]);
     }
   }
@@ -162,12 +262,24 @@ function prepareInterviewData() {
 
     if ((currentQuarter == interview_quarter))
     {
-      var Airline_Dest = '"Airline_Dest"' + ":" + '"' +  interview["quota_id"] + '", ';
-      var InterviewEndDate = '"InterviewEndDate"' + ":" + '"' +  interview["InterviewDate"]+ '", ' ;
-      var Completed_of_interviews = '"Completed_of_interviews"' + ":" + '"' +  interview["Number of interviews"] ;
-      var str = '{' + Airline_Dest + InterviewEndDate + Completed_of_interviews + '"}';
+      // var Airline_Dest = '"Airline_Dest"' + ":" + '"' +  interview["quota_id"] + '", ';
+      // var InterviewEndDate = '"InterviewEndDate"' + ":" + '"' +  interview["InterviewDate"]+ '", ' ;
+      // var Completed_of_interviews = '"Completed_of_interviews"' + ":" + '"' +  interview["Number of interviews"] ;
+      // var str = '{' + Airline_Dest + InterviewEndDate + Completed_of_interviews + '"}';
 
-      interview_data.push(JSON.parse(str));
+      interview["Airline_Dest"] = interview["quota_id"];
+      interview["InterviewEndDate"] = interview["InterviewDate"];
+      interview["Completed_of_interviews"] = interview["Number of interviews"];
+      
+      // Loop through the array and apply replaceAll for each pair
+      for (k = 0; k < routes_mapping.length; k++) {
+        if (routes_mapping[k].flight == interview["quota_id"]) {
+          interview["Airline_Dest"] = routes_mapping[k].aci;
+        }
+      }
+      
+      interview_data.push(interview);
+      // interview_data.push(JSON.parse(str));
     }
    }
 
@@ -218,10 +330,16 @@ function prepareInterviewData() {
     let flight = today_flight_list[i];
     for (j = 0; j < quota_data.length; j++) {
       let quota = quota_data[j];
-      if ((quota.Airline_Dest == flight.Airline_Dest) && (quota.Quota>0))
+      if (((quota.Airline_Dest_in_schedule.includes(flight.Airline_Dest)) ) && (quota.Quota>0))
       {
         flight.Quota = quota.Quota;
         daily_plan_data.push(flight);
+
+        // if (flight.Airline_Dest == "EC-BER")
+        // {
+        //   console.log("flight: ", flight);
+        // }
+
        }
     }
   }
