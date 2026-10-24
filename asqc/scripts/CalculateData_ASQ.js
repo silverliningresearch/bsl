@@ -96,10 +96,13 @@ function CalculateAirportAirLineReport_asq() {
 
     //Dest airline 
     for (j = 0; j < dest_airline_quota_asq.length; j++) {
-      if (row.Airline_Dest.toUpperCase() == dest_airline_quota_asq[j].Airline_Dest.toUpperCase()) 
+      // if (row.Airline_Dest.toUpperCase() == dest_airline_quota_asq[j].Airline_Dest.toUpperCase()) 
+      if (dest_airline_quota_asq[j].Airline_Dest_in_schedule.includes(row.Airline_Dest))
       {
         //if ( dest_airline_quota_asq[j].Difference < 0) 
         {
+          row.ACI_Quota = dest_airline_quota_asq[j].ACI_Quota;
+
           row.doop = dest_airline_quota_asq[j].doop;
           row.remaining_flights = dest_airline_quota_asq[j].remaining_flights;
           row.Completed = dest_airline_quota_asq[j].Completed;
@@ -342,7 +345,8 @@ function CalculateDOOP_asq() {
 
     var remaining_flights = 0;
     for (var j = 0; j < this_month_flight_list_asq.length; j++) {
-      if (dest_airline_quota_asq[i].Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+      // if (dest_airline_quota_asq[i].Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+      if (dest_airline_quota_asq[i].Airline_Dest_in_schedule.includes(this_month_flight_list_asq[j].Airline_Dest))
       {
         //get remaining_flights
         if (isNotThePastDate_asq(this_month_flight_list_asq[j].Date)) {
@@ -393,7 +397,8 @@ function CalculateLessFlights_asq() {
     if (quota.remaining_flights<6) {
 
       for (var j = 0; j < this_month_flight_list_asq.length; j++) {
-        if (quota.Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+        // if (quota.Airline_Dest.toUpperCase() == this_month_flight_list_asq[j].Airline_Dest.toUpperCase()) 
+        if (quota.Airline_Dest_in_schedule.includes(this_month_flight_list_asq[j].Airline_Dest))
         {
           if (quota.Difference < 0) {
             row = this_month_flight_list_asq[j];

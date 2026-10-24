@@ -4,6 +4,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.svg">
     
     <script src="../mkt/data/Departures_flight_list.js"></script>
+		<script src="../mkt/data/routes_mapping.js"></script>
 
     <style>
       .table-font {
@@ -230,9 +231,10 @@
         var data = new google.visualization.DataTable();
 
         //define header
-        data.addColumn('string', 'Airline-Dest');
+        data.addColumn('string', 'ASQ pair');
         data.addColumn('string', 'Airline');
         data.addColumn('string', 'Dest');
+        data.addColumn('string', 'Airline-Dest in flight schedule');
         data.addColumn('number', 'Remaining Flights');
         data.addColumn('number', 'Quota');
         data.addColumn('number', 'Collected');
@@ -252,6 +254,7 @@
             row.Airline_Dest,
             Airline,
             Dest,            
+            row.Airline_Dest_in_schedule,
             Number(row.remaining_flights),
             Number(row.Quota),
             Number(row.Completed), 

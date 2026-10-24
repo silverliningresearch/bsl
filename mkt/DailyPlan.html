@@ -4,11 +4,12 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     
 		<script src="data/Departures_flight_list.js"></script>
+		<script src="data/routes_mapping.js"></script>
 
     <script src="data/invalid_cases.js"></script>
     <script src="scripts/CalculateData.js"></script>
     <script src="scripts/PrepareData.js"></script>
-		
+
     <!-- <script type="text/javascript" src="https://silverliningresearch.github.io/daily_plan_data_sur_v3/BSL_MKT/destAirlines_statistics.js"></script>  -->
 
     <style>
@@ -47,7 +48,6 @@
 
     // Get token on page load
     userToken = getTokenFromURL();
-    userToken = "ef5cae70-2000-4ef6-bb07-5756428031d3";
     if (userToken) {
       console.log('Token found in URL');
     } else {

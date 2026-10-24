@@ -129,6 +129,16 @@ function prepareInterviewData_asq() {
     {
       if (dest_airline_quota_asq_temp[i].Quota >=1) //BSL: >=2, not >=4 
       {
+        dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = "";
+
+        // Loop through the array and apply replaceAll for each pair
+        for (k = 0; k < routes_mapping.length; k++) {
+          if (routes_mapping[k].aci == dest_airline_quota_asq_temp[i]["ACI_Quota"]) {
+            dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] + routes_mapping[k].flight + "; "; 
+          }
+        }
+        if (dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] == "")  dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = dest_airline_quota_asq_temp[i]["ACI_Quota"];
+
         dest_airline_quota_asq.push(dest_airline_quota_asq_temp[i]);
       }
     }
@@ -202,21 +212,6 @@ function prepareInterviewData_asq() {
     var flight_number = flight.Flight.substring(3,8);
     flight.Flight_Show = flight.Flight;
 
-    //speciall mapping ICAO - IATA code
-    if ((flight_letters == "EZS") || (flight_letters == "EZY") || (flight_letters == "EJU"))
-    {
-      var new_flight_letters = flight_letters;
-      // if (flight_letters == "EZY") new_flight_letters = "U2";
-      // if (flight_letters == "EZS") new_flight_letters = "DS";
-      if (flight_letters == "EJU") new_flight_letters = "EC";
-      
-      flight.Flight_Show = new_flight_letters + " " + flight_number;
-      flight.AirlineCode = new_flight_letters;
-      
-      flight.Flight_Show = flight.Flight_Show + " (" +  flight.Flight + ")";
-    }
-
-    // flight.Dest = flight.Airport_code; //speciall for BER
     flight.Airline_Dest = flight.AirlineCode + "-" + flight.Dest;//code for compare
 
     //for sorting: YYYY-MM-DD
@@ -258,7 +253,7 @@ function prepareInterviewData_asq() {
 
     for (j = 0; j < dest_airline_quota_asq.length; j++) {
       let quota = dest_airline_quota_asq[j];
-      if ((quota.Airline_Dest == flight.Airline_Dest) )
+      if (((quota.Airline_Dest_in_schedule.includes(flight.Airline_Dest)) ) && (quota.Quota>0))
       {
         flight.Quota = quota.Quota;
        }
@@ -290,8 +285,12 @@ function prepareInterviewData_asq() {
       {
        if (!hide_dest.includes(flight.Dest)) // from 2026-Q1
         {
-          //if (flight.Dest == "AGP")  // testing
+
           daily_plan_data_asq.push(flight);
+          if (flight.Airline_Dest == "EC-BER")
+          {
+            console.log("flight: ", flight);
+          }
         }
       }
     }

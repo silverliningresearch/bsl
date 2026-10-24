@@ -4,6 +4,7 @@
     <link rel="icon" type="image/x-icon" href="images/favicon.svg">
 
     <script src="../mkt/data/Departures_flight_list.js"></script>
+		<script src="../mkt/data/routes_mapping.js"></script>
 
     <script src="scripts/PrepareData_ASQ.js"></script>
     <script src="scripts/CalculateData_ASQ.js"></script>
@@ -222,6 +223,8 @@
         data.addColumn('string', 'TER');
         data.addColumn('string', 'Flight');
         data.addColumn('string', 'To');
+        data.addColumn('string', 'ASQ pair');
+
         data.addColumn('number', 'Remaining Flights');
         data.addColumn('number', 'Quota');
         data.addColumn('number', 'Completed');
@@ -249,6 +252,8 @@
                 row.Time, 
                 row.Terminal, 
                 row.Flight_Show, row.Dest, 
+                row.ACI_Quota,
+
                 Number(row.remaining_flights), Number(row.Quota), Number(row.Completed), 
                 Number(row.Difference), 
                 Number(row.Completed_percent), 

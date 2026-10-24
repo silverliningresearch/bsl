@@ -128,6 +128,16 @@ function prepareInterviewData_asq() {
     {
       if (dest_airline_quota_asq_temp[i].Quota >=1) //BSL: >=1, not >=4 
       {
+        dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = "";
+
+        // Loop through the array and apply replaceAll for each pair
+        for (k = 0; k < routes_mapping.length; k++) {
+          if (routes_mapping[k].aci == dest_airline_quota_asq_temp[i]["ACI_Quota"]) {
+            dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] + routes_mapping[k].flight + "; "; 
+          }
+        }
+        if (dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] == "")  dest_airline_quota_asq_temp[i]["Airline_Dest_in_schedule"] = dest_airline_quota_asq_temp[i]["ACI_Quota"];
+
         dest_airline_quota_asq.push(dest_airline_quota_asq_temp[i]);
       }
     }
@@ -257,7 +267,7 @@ function prepareInterviewData_asq() {
 
     for (j = 0; j < dest_airline_quota_asq.length; j++) {
       let quota = dest_airline_quota_asq[j];
-      if ((quota.Airline_Dest == flight.Airline_Dest) )
+      if (((quota.Airline_Dest_in_schedule.includes(flight.Airline_Dest)) ) && (quota.Quota>0))
       {
         flight.Quota = quota.Quota;
        }
