@@ -41,7 +41,6 @@
 
     // Get token on page load
     userToken = getTokenFromURL();
-    userToken = "ef5cae70-2000-4ef6-bb07-5756428031d3";
     
     if (userToken) {
       console.log('Token found in URL');
@@ -279,7 +278,7 @@
 
         loadData();
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Interview_Date');        
+        // data.addColumn('string', 'Interview_Date');        
         data.addColumn('string', 'Interviewer');
         data.addColumn('string', 'Survey');                
         data.addColumn('number', 'Completed today');
@@ -292,7 +291,7 @@
           if (row["Interview_Date"] && row["Interview_Date"] !="") {
             if ((row["Interview_Date"]  == today)) {
               data.addRows([[
-                            row.Interview_Date, 
+                            // row.Interview_Date, 
                             row.InterviewerID, 
                             row.Surveys, 
                             row.completed_interviews]]);
