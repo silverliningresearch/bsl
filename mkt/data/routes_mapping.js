@@ -84,3 +84,12 @@ const routes_mapping = [
   { flight: "DS-VIE", aci: "U2-VIE" },
   { flight: "DS-VLC", aci: "U2-VLC" }
 ];
+
+const interviewer_map = 
+[
+  { "id": "1", "label": "01 - BF" },
+  { "id": "2", "label": "02 - CR" },
+  { "id": "3", "label": "03 - DM" },
+  { "id": "4", "label": "04 - ME" },
+  { "id": "98", "label": "98 - Other" }
+]

@@ -1,0 +1,354 @@
+<html>
+    <head>
+		<title>BSL - Today Interviews</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+    <style>
+      .table-font {
+        font-size: 16px;
+        /* height: 18px; */
+      }
+
+      .filter-font {
+        font-size: 16px;
+        /* height: 18px; */
+      }
+    </style>
+
+		<script src="data/routes_mapping.js"></script>
+
+  
+  <!-- >>>Datagateway -->
+  <script type="text/javascript">
+    // Configuration for fallback system
+    const CONFIG_URL = 'https://raw.githubusercontent.com/silverliningresearch/aptgateway/main/config.json?t=' + new Date().getTime();
+    let prj ="BSL_MKT";
+    
+    // Global variables to store config and data sources
+    let gatewayConfig = null;
+    let dataSourceBase = '';
+    let requiresToken = false;
+    let userToken = '';
+    let chartsReady = false;
+    let dataReady = false;
+
+    // Parse token from URL query parameter
+    function getTokenFromURL() {
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      return urlParams.get('token') || '';
+    }
+
+    // Get token on page load
+    userToken = getTokenFromURL();
+    userToken = "ef5cae70-2000-4ef6-bb07-5756428031d3";
+    
+    if (userToken) {
+      console.log('Token found in URL');
+    } else {
+      console.log('No token in URL - will use fallback mode if token is required');
+    }
+
+    // Fetch configuration and load data scripts
+    async function loadConfiguration() {
+      try {
+        const response = await fetch(CONFIG_URL);
+        gatewayConfig = await response.json();
+
+        // Determine data source based on mode
+        if (gatewayConfig.mode === 'primary') {
+          dataSourceBase = gatewayConfig.primary.url;
+          requiresToken = gatewayConfig.primary.requiresToken;
+        } else if (gatewayConfig.mode === 'fallback') {
+          dataSourceBase = gatewayConfig.fallback.url;
+          requiresToken = gatewayConfig.fallback.requiresToken;
+        }
+
+        // If token is required but not provided - warn
+        if (requiresToken && !userToken) {
+          console.warn('Token required but not provided.');
+        }
+
+        // Display current mode for debugging
+        console.log(`Gateway Mode: ${gatewayConfig.mode}`);
+        console.log(`Data Source: ${dataSourceBase}`);
+        console.log(`Requires Token: ${requiresToken}`);
+
+      } catch (error) {
+        console.error('Error loading configuration:', error);
+        alert('Failed to load gateway configuration. Application cannot start.');
+        return; // Stop execution if config fails
+      }
+
+      // Load data scripts dynamically
+      try {
+        // Check for Mixed Content (HTTPS page loading HTTP content)
+        if (window.location.protocol === 'https:' && dataSourceBase.startsWith('http:')) {
+          const msg = 'Security Error: Cannot load insecure (HTTP) data from a secure (HTTPS) page. Please use HTTP or update the server to HTTPS.';
+          console.error(msg);
+          alert(msg);
+          return;
+        }
+
+        await loadDataScripts();
+      } catch (error) {
+        console.error('Error loading data scripts:', error);
+        alert(`Failed to load data scripts: ${error.message}\nPlease check your connection or token.`);
+      }
+    }
+
+    // Load data scripts based on configuration
+    async function loadDataScripts() {
+      // Build URLs with or without token
+      let interviewStatsUrl, flightListUrl;
+      let quotaDataUrl, invalidCasesUrl;
+
+      if (requiresToken && userToken) {
+        // Primary server with token
+        interviewerMKTStatsUrl = `${dataSourceBase}/${prj}/completed_by_interviewer_mkt.js?token=${userToken}`;
+        interviewerArrStatsUrl = `${dataSourceBase}/BSL_ASQA/completed_by_interviewer_arr.js?token=${userToken}`;
+        interviewerDepStatsUrl = `${dataSourceBase}/BSL_ASQD/completed_by_interviewer_dep.js?token=${userToken}`;
+        interviewerComStatsUrl = `${dataSourceBase}/BSL_ASQC/completed_by_interviewer_com.js?token=${userToken}`;
+      } else {
+        // Fallback GitHub repository without token
+        interviewerMKTStatsUrl = `${dataSourceBase}/${prj}/completed_by_interviewer_mkt.js`;
+        interviewerArrStatsUrl = `${dataSourceBase}/BSL_ASQA/completed_by_interviewer_arr.js?token=${userToken}`;
+        interviewerDepStatsUrl = `${dataSourceBase}/BSL_ASQD/completed_by_interviewer_dep.js?token=${userToken}`;
+        interviewerComStatsUrl = `${dataSourceBase}/BSL_ASQC/completed_by_interviewer_com.js?token=${userToken}`;
+
+      }
+
+      // Load remote data scripts via fetch+eval to bypass MIME type restriction
+      try {
+        console.log('Loading script:', interviewerMKTStatsUrl);
+        await fetchAndEval(interviewerMKTStatsUrl);
+        await fetchAndEval(interviewerArrStatsUrl);     
+        await fetchAndEval(interviewerDepStatsUrl);        
+        await fetchAndEval(interviewerComStatsUrl);        
+
+        console.log('Remote data scripts loaded successfully');
+      } catch (error) {
+        console.error('Error loading remote data scripts:', error);
+        throw error;
+      }
+
+      // Load logic scripts after data scripts are loaded
+      try {
+        // await loadScript('scripts/PrepareData.js');
+        // await loadScript('scripts/CalculateData.js');
+        console.log('Logic scripts loaded successfully');
+      } catch (error) {
+        console.error('Error loading logic scripts:', error);
+        throw error;
+      }
+
+      // Signal that data is ready
+      dataReady = true;
+      console.log('Data ready');
+      attemptDraw();
+    }
+
+    // Fetch a JS file as text and eval it (bypasses MIME type restriction from raw.githubusercontent.com)
+    // Uses globalThis assignment to escape function scope (let/var inside a function eval are NOT global)
+    function fetchAndEval(url) {
+      return fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
+          return response.text();
+        })
+        .then(code => {
+          // Replace first `let/const/var varName` declaration with `globalThis.varName`
+          // so the variable is accessible globally after eval
+          const globalCode = code.replace(/^\s*(let|const|var)\s+(\w+)/, 'globalThis.$2');
+          eval(globalCode);
+        });
+    }
+
+    // Helper function to load a script dynamically (for local scripts)
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+        document.head.appendChild(script);
+      });
+    }
+
+    function onChartsLoaded() {
+      console.log('Google Charts loaded');
+      chartsReady = true;
+      attemptDraw();
+    }
+
+    function attemptDraw() {
+      if (chartsReady && dataReady) {
+        console.log('Both Charts and Data ready. Drawing table...');
+        drawTable();
+      } else {
+        console.log(`Waiting... Charts: ${chartsReady}, Data: ${dataReady}`);
+      }
+    }
+
+    // Start loading configuration when the page loads
+    window.onload = loadConfiguration;
+  </script>
+  <!-- <<<Datagateway -->
+
+
+
+		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+      var completed_by_interviewer_json;
+      var download_time;
+      function getToday() // 2023-04-07
+      {
+        var today = new Date();
+        var day = '' + today.getDate();
+        var month = '' + (today.getMonth() + 1); //month start from 0;
+        var year = today.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+       
+        return ([year, month, day].join('-'));
+      }
+
+      function loadData()
+      {
+        completed_by_interviewer_json = [];
+        var today = getToday();
+
+        var raw_mkt = JSON.parse(completed_by_interviewer_mkt);
+        download_time = raw_mkt[0].download_time;
+        for (i = 0; i < raw_mkt.length; i++){
+          let row = raw_mkt[i];
+          row.InterviewerID = String(row.InterviewerID );
+          //if ((row.Interview_Date == today)) 
+          {
+            completed_by_interviewer_json.push(row);
+          }
+        }
+
+        var raw_arr = JSON.parse(completed_by_interviewer_arr);
+        for (i = 0; i < raw_arr.length; i++){
+          let row = raw_arr[i];
+          //if ((row.Interview_Date == today)) 
+          {
+            completed_by_interviewer_json.push(row);
+          }
+        }
+              
+        var raw_dep = JSON.parse(completed_by_interviewer_dep);
+        for (i = 0; i < raw_dep.length; i++){
+          let row = raw_dep[i];
+          //if ((row.Interview_Date == today)) 
+          {
+            completed_by_interviewer_json.push(row);
+          }
+        }
+
+        var raw_com = JSON.parse(completed_by_interviewer_com);
+        for (i = 0; i < raw_com.length; i++){
+          let row = raw_com[i];
+          //if ((row.Interview_Date == today)) 
+          {
+            completed_by_interviewer_json.push(row);
+          }
+        }
+
+        // Loop through the array and apply replaceAll for each pair
+        for (i = 0; i < completed_by_interviewer_json.length; i++)
+        {
+           for (k = 0; k < interviewer_map.length; k++) {
+            if (completed_by_interviewer_json[i]["InterviewerID"] == interviewer_map[k]["id"]) 
+            {
+              completed_by_interviewer_json[i]["InterviewerID"] = interviewer_map[k]["label"];
+            }
+          }
+        }
+      }
+
+      //google.charts.load('current', {'packages':['table']});
+      google.charts.load('current', {'packages':['table','corechart', 'controls']});
+      google.charts.setOnLoadCallback(onChartsLoaded);
+
+      function drawTable() {
+        var today = getToday();
+
+        loadData();
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Interview_Date');        
+        data.addColumn('string', 'Interviewer');
+        data.addColumn('string', 'Survey');                
+        data.addColumn('number', 'Completed today');
+
+        //add data
+        for (i = 0; i < completed_by_interviewer_json.length; i++) {
+          var row = completed_by_interviewer_json[i];
+                  console.log('i:', i);
+         console.log('row:', row);
+          if (row["Interview_Date"] && row["Interview_Date"] !="") {
+            if ((row["Interview_Date"]  == today)) {
+              data.addRows([[
+                            row.Interview_Date, 
+                            row.InterviewerID, 
+                            row.Surveys, 
+                            row.completed_interviews]]);
+            }
+          }
+        }
+
+        //create a dashboard.
+        var dashboard = new google.visualization.Dashboard(
+        document.getElementById('dashboard_div'));
+
+        //create fiter
+        var options = {
+          'filterColumnLabel': 'Interview_Date',
+          "ui": {"label": "", 
+                "labelStacking": 'horizotal',
+                "caption": "Select Date",
+                }
+        };
+        
+        var tableFilter = new google.visualization.ControlWrapper({
+          'controlType': 'CategoryFilter',
+          'containerId': 'filter_div',
+          'options': options
+        });
+
+        // Create table
+        var tableChart = new google.visualization.ChartWrapper({
+          'chartType': 'Table',
+          'containerId': 'table_div',
+          'options': {
+            'allowHtml': true, 
+            'cssClassNames': {tableCell: 'table-font', headerRow: 'table-font', headerCell: 'googleHeaderCell' },
+            'sortColumn': 0, //time
+            'showRowNumber': false, 'width': '100%', 'height': '100%'
+          }
+        });
+
+        dashboard.bind(tableFilter, tableChart);
+
+        var view = new google.visualization.DataView(data);
+        document.getElementById("filter_div").style.display = "none";
+        dashboard.draw(view);
+
+        //Update time info
+        document.getElementById("download_time").innerHTML = "Data updated: " + download_time;
+      }
+    </script>
+  </head>
+  <body>
+		<h1>Today Status – BLS Surveys</h1>
+    <h4 id="download_time"></h4>
+    <!--Divs that will hold each control and chart-->
+    <div id="filter_div" style="font-size: 15px"> </div>
+    </br>
+    <div id="table_div" style="max-width:450px; height:300px"></div>
+
+  </body>
+</html>
