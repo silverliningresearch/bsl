@@ -106,7 +106,7 @@ function notDeparted_asq(flight_time) {
   current_time_value += current_time.substring(current_time.length-5,current_time.length-3)*1;
 
   //Time: 0805    
-  var flight_time_value = flight_time.substring(0,2) * 60 + flight_time.substring(2,4)*1;
+  var flight_time_value = flight_time.substring(0,2) * 150 + flight_time.substring(2,4)*1;
 
   var result = (flight_time_value > current_time_value);
   return (result);
