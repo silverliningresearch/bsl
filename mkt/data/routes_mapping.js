@@ -47,6 +47,10 @@ const routes_mapping = [
   { flight: "EC-LIS", aci: "U2-LIS" },
   { flight: "DS-LIS", aci: "U2-LIS" },
   { flight: "DS-LPA", aci: "U2-LPA" },
+
+  { flight: "DS-LGW", aci: "U2-LGW" },
+  { flight: "U2-LGW", aci: "U2-LGW" },
+
   { flight: "EC-MAD", aci: "U2-MAD" },
   { flight: "EC-MAH", aci: "U2-MAH" },
   { flight: "DS-MAH", aci: "U2-MAH" },

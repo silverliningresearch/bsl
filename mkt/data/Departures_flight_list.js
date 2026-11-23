@@ -67678,6 +67678,19 @@
   "AirlineFR": "easyJet Switzerland",
   "Flight": "DS8475"
  },
+  {
+  "Time": "0640",
+  "Date": "24-11-2026",
+  "Dest": "LGW",
+  "DestName": "London Gatwick",
+  "Country": "United Kingdom",
+  "DestNameFR": "London-Lgw",
+  "CountryFR": "Grande-Bretagne",
+  "AirlineCode": "DS",
+  "Airline": "easyJet Switzerland",
+  "AirlineFR": "easyJet Switzerland",
+  "Flight": "DS8475"
+ },
  {
   "Time": "0640",
   "Date": "23-11-2026",

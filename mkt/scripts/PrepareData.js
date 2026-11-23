@@ -148,7 +148,6 @@ function prepareInterviewData() {
     if (quota_data_temp[i].Quarter == currentQuarter)
     {
       quota_data_temp[i]["Airline_Dest_in_schedule"] = "";
-
       // Loop through the array and apply replaceAll for each pair
       for (k = 0; k < routes_mapping.length; k++) {
         if (routes_mapping[k].aci == quota_data_temp[i]["ACI_Quota"]) {
@@ -248,12 +247,6 @@ function prepareInterviewData() {
       {
         flight.Quota = quota.Quota;
         daily_plan_data.push(flight);
-
-        // if (flight.Airline_Dest == "EC-BER")
-        // {
-        //   console.log("flight: ", flight);
-        // }
-
        }
     }
   }
